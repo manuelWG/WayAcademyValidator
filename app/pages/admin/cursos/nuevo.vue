@@ -18,6 +18,14 @@ async function onSubmit(payload: { moodleCourseId: number, name: string, notes: 
       color: 'success'
     })
     await navigateTo(`/admin/cursos/${course.id}`)
+  } catch (error: unknown) {
+    const status = error && typeof error === 'object' && 'statusCode' in error
+      ? (error as { statusCode: number }).statusCode
+      : undefined
+    toast.add({
+      title: status === 409 ? 'Ya existe un curso con ese Moodle ID' : 'No se pudo crear el curso',
+      color: 'error'
+    })
   } finally {
     loading.value = false
   }

@@ -4,6 +4,7 @@ defineProps<{
   value: string | number
   hint?: string
   icon?: string
+  source?: 'real' | 'demo'
 }>()
 </script>
 
@@ -13,11 +14,21 @@ defineProps<{
       <p class="text-sm text-muted">
         {{ label }}
       </p>
-      <UIcon
-        v-if="icon"
-        :name="icon"
-        class="size-4 text-muted"
-      />
+      <div class="flex items-center gap-2">
+        <span
+          v-if="source === 'demo'"
+          class="rounded bg-elevated px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted"
+        >Demo</span>
+        <span
+          v-else-if="source === 'real'"
+          class="rounded bg-elevated px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted"
+        >Real</span>
+        <UIcon
+          v-if="icon"
+          :name="icon"
+          class="size-4 text-muted"
+        />
+      </div>
     </div>
     <p class="text-2xl font-semibold tracking-tight text-highlighted">
       {{ value }}

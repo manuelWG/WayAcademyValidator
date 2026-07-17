@@ -2,6 +2,8 @@ import type { AuditConflict } from '../types/audit'
 import { delay } from '../utils/delay'
 import { useMockStore } from '../composables/useMockStore'
 
+// MOCK — fase posterior: auditoría real en Neon
+
 function getStore() {
   return useMockStore()
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ImportPreviewRow, ImportBatch, ImportCounters } from '../../types/import'
 
-const { courses } = useCourses()
+const { courses, list } = useCourses()
 const { validateStructure, simulatePreview, confirmImport } = useImports()
 const { user } = useAdminSession()
 const toast = useToast()
@@ -14,6 +14,15 @@ const structureMessage = ref('')
 const loading = ref(false)
 const previewRows = ref<ImportPreviewRow[]>([])
 const resultBatch = ref<ImportBatch | null>(null)
+const coursesLoading = ref(true)
+
+onMounted(async () => {
+  try {
+    await list()
+  } finally {
+    coursesLoading.value = false
+  }
+})
 
 const selectedCourse = computed(() => courses.value.find(c => c.id === courseLocalId.value))
 
@@ -133,18 +142,26 @@ function reset() {
       <h2 class="text-lg font-medium">
         1. Seleccionar el curso
       </h2>
-      <USelect
-        v-model="courseLocalId"
-        :items="courseOptions"
-        placeholder="Elige un curso"
-        class="w-full"
+      <SharedLoadingBlock v-if="coursesLoading" />
+      <SharedEmptyState
+        v-else-if="!courseOptions.length"
+        title="Sin cursos reales"
+        description="Registra un curso en Administración antes de importar (el preview sigue siendo demo)."
       />
-      <UButton
-        :disabled="!courseLocalId"
-        @click="step = 2"
-      >
-        Continuar
-      </UButton>
+      <template v-else>
+        <USelect
+          v-model="courseLocalId"
+          :items="courseOptions"
+          placeholder="Elige un curso"
+          class="w-full"
+        />
+        <UButton
+          :disabled="!courseLocalId"
+          @click="step = 2"
+        >
+          Continuar
+        </UButton>
+      </template>
     </div>
 
     <!-- Step 2 -->

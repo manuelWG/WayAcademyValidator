@@ -7,6 +7,8 @@ import { normalizeCertificateCode } from '../utils/normalize-certificate-code'
 import { normalizeDocument } from '../utils/normalize-document'
 import { useMockStore } from '../composables/useMockStore'
 
+// MOCK — fase posterior: importación CSV real
+
 function getStore() {
   return useMockStore()
 }

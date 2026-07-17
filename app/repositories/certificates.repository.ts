@@ -4,6 +4,8 @@ import { normalizeDocument } from '../utils/normalize-document'
 import { delay } from '../utils/delay'
 import { useMockStore } from '../composables/useMockStore'
 
+// MOCK — fase posterior: consulta pública real en Neon
+
 function getStore() {
   return useMockStore()
 }

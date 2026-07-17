@@ -7,4 +7,5 @@ export interface Course {
   certificatesCount: number
   lastImportAt: string | null
   createdAt: string
+  updatedAt: string
 }

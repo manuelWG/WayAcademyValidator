@@ -6,15 +6,12 @@ definePageMeta({
 
 const route = useRoute()
 const { getById, update, setPublished } = useCourses()
-const { listByCourse } = useCertificates()
 const toast = useToast()
 
 const courseId = computed(() => String(route.params.id))
 const loading = ref(true)
 const saving = ref(false)
 const course = ref<Awaited<ReturnType<typeof getById>>>(null)
-
-const certificates = computed(() => listByCourse(courseId.value))
 
 onMounted(async () => {
   course.value = await getById(courseId.value)
@@ -24,8 +21,13 @@ onMounted(async () => {
 async function onSave(payload: { moodleCourseId: number, name: string, notes: string }) {
   saving.value = true
   try {
-    course.value = await update(courseId.value, payload)
+    course.value = await update(courseId.value, {
+      name: payload.name,
+      notes: payload.notes
+    })
     toast.add({ title: 'Curso actualizado', color: 'success' })
+  } catch {
+    toast.add({ title: 'No se pudo guardar', color: 'error' })
   } finally {
     saving.value = false
   }
@@ -40,6 +42,8 @@ async function togglePublish() {
       title: course.value?.isPublished ? 'Curso publicado' : 'Curso despublicado',
       color: 'success'
     })
+  } catch {
+    toast.add({ title: 'No se pudo actualizar la publicación', color: 'error' })
   } finally {
     saving.value = false
   }
@@ -48,7 +52,12 @@ async function togglePublish() {
 
 <template>
   <div>
-    <SharedLoadingBlock v-if="loading || !course" />
+    <SharedLoadingBlock v-if="loading" />
+    <SharedEmptyState
+      v-else-if="!course"
+      title="Curso no encontrado"
+      description="El curso no existe o no tienes acceso."
+    />
     <template v-else>
       <SharedPageHeader
         :title="course.name"
@@ -91,32 +100,12 @@ async function togglePublish() {
 
         <section class="space-y-4">
           <h2 class="font-medium text-highlighted">
-            Certificados importados ({{ certificates.length }})
+            Certificados importados
           </h2>
           <SharedEmptyState
-            v-if="!certificates.length"
-            title="Sin certificados"
-            description="Importa un CSV para este curso."
+            title="Sin certificados reales aún"
+            description="Los certificados reales se conectarán en la fase de importación. La consulta pública y el wizard siguen usando datos de demostración."
           />
-          <div
-            v-else
-            class="space-y-2"
-          >
-            <div
-              v-for="cert in certificates"
-              :key="cert.id"
-              class="rounded-lg border border-default p-3 text-sm"
-            >
-              <p class="font-mono font-medium">
-                {{ cert.certificateCode }}
-              </p>
-              <p>{{ cert.snapshot.participantName }}</p>
-              <p class="text-muted">
-                Expedido {{ formatDate(cert.snapshot.issuedAt) }} ·
-                Importado {{ formatDate(cert.importedAt) }}
-              </p>
-            </div>
-          </div>
         </section>
       </div>
     </template>

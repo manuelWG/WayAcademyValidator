@@ -4,9 +4,21 @@ definePageMeta({
   middleware: 'admin-auth'
 })
 
-const { courses, setPublished } = useCourses()
+const { courses, list, setPublished } = useCourses()
 const toast = useToast()
 const loadingId = ref<string | null>(null)
+const loading = ref(true)
+const loadError = ref('')
+
+onMounted(async () => {
+  try {
+    await list()
+  } catch {
+    loadError.value = 'No se pudieron cargar los cursos.'
+  } finally {
+    loading.value = false
+  }
+})
 
 async function togglePublish(id: string, next: boolean) {
   loadingId.value = id
@@ -15,6 +27,11 @@ async function togglePublish(id: string, next: boolean) {
     toast.add({
       title: next ? 'Curso publicado' : 'Curso despublicado',
       color: 'success'
+    })
+  } catch {
+    toast.add({
+      title: 'No se pudo actualizar el curso',
+      color: 'error'
     })
   } finally {
     loadingId.value = null
@@ -38,7 +55,22 @@ async function togglePublish(id: string, next: boolean) {
       </template>
     </SharedPageHeader>
 
-    <div class="overflow-x-auto rounded-xl border border-default">
+    <SharedLoadingBlock v-if="loading" />
+    <UAlert
+      v-else-if="loadError"
+      color="error"
+      variant="subtle"
+      :title="loadError"
+    />
+    <SharedEmptyState
+      v-else-if="!courses.length"
+      title="Sin cursos"
+      description="Registra el primer curso local. Quedará no publicado."
+    />
+    <div
+      v-else
+      class="overflow-x-auto rounded-xl border border-default"
+    >
       <table class="w-full min-w-[800px] text-left text-sm">
         <thead class="bg-elevated/60 text-muted">
           <tr>

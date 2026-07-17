@@ -9,7 +9,8 @@ export const seedCourses: Course[] = [
     isPublished: true,
     certificatesCount: 4,
     lastImportAt: '2026-06-12T14:30:00.000Z',
-    createdAt: '2026-03-01T10:00:00.000Z'
+    createdAt: '2026-03-01T10:00:00.000Z',
+    updatedAt: '2026-06-12T14:30:00.000Z'
   },
   {
     id: 'course-2',
@@ -19,7 +20,8 @@ export const seedCourses: Course[] = [
     isPublished: true,
     certificatesCount: 3,
     lastImportAt: '2026-06-28T09:15:00.000Z',
-    createdAt: '2026-03-15T10:00:00.000Z'
+    createdAt: '2026-03-15T10:00:00.000Z',
+    updatedAt: '2026-06-28T09:15:00.000Z'
   },
   {
     id: 'course-3',
@@ -29,7 +31,8 @@ export const seedCourses: Course[] = [
     isPublished: false,
     certificatesCount: 2,
     lastImportAt: '2026-07-02T16:45:00.000Z',
-    createdAt: '2026-05-01T10:00:00.000Z'
+    createdAt: '2026-05-01T10:00:00.000Z',
+    updatedAt: '2026-07-02T16:45:00.000Z'
   },
   {
     id: 'course-4',
@@ -39,6 +42,7 @@ export const seedCourses: Course[] = [
     isPublished: true,
     certificatesCount: 2,
     lastImportAt: '2026-05-20T11:00:00.000Z',
-    createdAt: '2026-04-10T10:00:00.000Z'
+    createdAt: '2026-04-10T10:00:00.000Z',
+    updatedAt: '2026-05-20T11:00:00.000Z'
   }
 ]
