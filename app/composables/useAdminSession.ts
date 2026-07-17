@@ -5,6 +5,8 @@ import { computeDashboardStats } from '../utils/dashboard-stats'
 import { useMockStore } from './useMockStore'
 
 export function useAdminSession() {
+  // Capture while the composable still has an active Nuxt instance (middleware / setup).
+  const nuxtApp = useNuxtApp()
   const { user: sessionUser, clear, fetch: fetchSession } = useUserSession()
 
   const session = computed<AdminSession>(() => ({
@@ -39,12 +41,12 @@ export function useAdminSession() {
    * A sealed cookie alone is not enough: invalid/inactive admins clear the local session.
    */
   async function refreshSession() {
-    // useRequestFetch forwards incoming Cookie during SSR; on client it is $fetch.
+    // Capture before the first await so SSR cookies stay available after getSession().
     const requestFetch = useRequestFetch() as AuthFetch
     return refreshAdminSession({
       getSession: () => adminAuthRepository.getSession(requestFetch),
-      clear,
-      fetchSession
+      // clear() calls useRequestFetch() internally — restore Nuxt context after await.
+      clear: () => nuxtApp.runWithContext(() => clear())
     })
   }
 

@@ -19,4 +19,19 @@ describe('architecture guards', () => {
       expect(source).not.toMatch(/@neondatabase\/serverless/)
     }
   })
+
+  it('admin session refresh preserves Nuxt context and skips redundant fetchSession', () => {
+    const composable = readFileSync('app/composables/useAdminSession.ts', 'utf8')
+    const helper = readFileSync('app/utils/refresh-admin-session.ts', 'utf8')
+
+    expect(composable).toMatch(/useNuxtApp\(\)/)
+    expect(composable).toMatch(/useRequestFetch\(\)/)
+    expect(composable).toMatch(/runWithContext/)
+    expect(composable).not.toMatch(/refreshAdminSession\([\s\S]*fetchSession/)
+
+    expect(helper).not.toMatch(/fetchSession\s*:/)
+    expect(helper).not.toMatch(/deps\.fetchSession/)
+    expect(helper).toMatch(/getSession/)
+    expect(helper).toMatch(/clear/)
+  })
 })
