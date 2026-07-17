@@ -9,6 +9,7 @@ import {
 import type { Course } from '../../app/types/course'
 import { useDb } from '../database/client'
 import { courses } from '../database/schema'
+import { isUniqueViolation } from '../utils/is-unique-violation'
 
 type CourseRow = typeof courses.$inferSelect
 
@@ -104,10 +105,4 @@ export async function setCoursePublished(id: string, isPublished: boolean): Prom
     .returning()
 
   return row ? toCourseDto(row) : null
-}
-
-function isUniqueViolation(error: unknown): boolean {
-  if (!error || typeof error !== 'object') return false
-  const e = error as { code?: string, message?: string }
-  return e.code === '23505' || Boolean(e.message?.includes('unique') || e.message?.includes('duplicate'))
 }
