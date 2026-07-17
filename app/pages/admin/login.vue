@@ -4,7 +4,7 @@ definePageMeta({
   middleware: 'admin-auth'
 })
 
-const { login, demoCredentials } = useAdminSession()
+const { login } = useAdminSession()
 const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
@@ -20,8 +20,12 @@ async function onSubmit() {
   loading.value = true
   try {
     const result = await login(username.value, password.value)
+    if (result.bootstrap) {
+      error.value = 'No hay administradores configurados. Ejecuta npm run create-admin.'
+      return
+    }
     if (!result.authenticated) {
-      error.value = 'Credenciales incorrectas. Usa las credenciales de demostración.'
+      error.value = 'Credenciales inválidas.'
       return
     }
     await navigateTo('/admin')
@@ -38,7 +42,7 @@ async function onSubmit() {
         Acceso administrativo
       </h1>
       <p class="text-sm text-muted">
-        Acceso de demostración — autenticación real en fase posterior
+        Autenticación real con sesión segura. No hay registro público.
       </p>
     </div>
 
@@ -99,14 +103,6 @@ async function onSubmit() {
         Iniciar sesión
       </UButton>
     </form>
-
-    <div class="rounded-lg bg-elevated/60 p-3 text-xs text-muted space-y-1">
-      <p class="font-medium text-highlighted">
-        Credenciales de demostración
-      </p>
-      <p>Usuario: <code>{{ demoCredentials.username }}</code></p>
-      <p>Contraseña: <code>{{ demoCredentials.password }}</code></p>
-    </div>
 
     <p class="text-center text-sm">
       <NuxtLink

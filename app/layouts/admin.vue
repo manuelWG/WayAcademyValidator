@@ -2,9 +2,9 @@
 const { user, logout } = useAdminSession()
 const open = ref(false)
 
-function onLogout() {
-  logout()
-  navigateTo('/admin/login')
+async function onLogout() {
+  await logout()
+  await navigateTo('/admin/login')
 }
 </script>
 

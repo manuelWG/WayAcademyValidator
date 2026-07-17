@@ -4,22 +4,42 @@ import { computeDashboardStats } from '../utils/dashboard-stats'
 import { useMockStore } from './useMockStore'
 
 export function useAdminSession() {
-  const session = useState<AdminSession>('way-academy-validator-admin-session', () => ({
-    authenticated: false,
-    user: null
+  const { loggedIn, user: sessionUser, clear, fetch: fetchSession } = useUserSession()
+
+  const session = computed<AdminSession>(() => ({
+    authenticated: Boolean(loggedIn.value && sessionUser.value),
+    user: sessionUser.value
+      ? {
+          username: sessionUser.value.username,
+          displayName: sessionUser.value.displayName
+        }
+      : null
   }))
 
   const store = useMockStore()
-  const dashboardStats = computed(() => computeDashboardStats(store.value))
+  const demoDashboardStats = computed(() => computeDashboardStats(store.value))
 
   async function login(username: string, password: string) {
     const result = await adminAuthRepository.login(username, password)
-    session.value = result
+    if (result.authenticated) {
+      await fetchSession()
+    }
     return result
   }
 
-  function logout() {
-    session.value = { authenticated: false, user: null }
+  async function logout() {
+    await adminAuthRepository.logout()
+    await clear()
+  }
+
+  async function refreshSession() {
+    await fetchSession()
+    // Server /api/auth/session clears invalid cookies; re-fetch sealed session
+    const remote = await adminAuthRepository.getSession()
+    if (!remote.authenticated) {
+      await clear()
+    }
+    return remote
   }
 
   return {
@@ -28,7 +48,8 @@ export function useAdminSession() {
     user: computed(() => session.value.user),
     login,
     logout,
-    demoCredentials: adminAuthRepository.getDemoCredentials(),
-    dashboardStats
+    refreshSession,
+    /** Demo metrics still sourced from mock store (certificates/imports/audit). */
+    demoDashboardStats
   }
 }

@@ -1,13 +1,14 @@
-export default defineNuxtRouteMiddleware((to) => {
-  const { isAuthenticated } = useAdminSession()
+export default defineNuxtRouteMiddleware(async (to) => {
+  const { loggedIn, fetch } = useUserSession()
+  await fetch()
 
   if (to.path.startsWith('/admin') && to.path !== '/admin/login') {
-    if (!isAuthenticated.value) {
+    if (!loggedIn.value) {
       return navigateTo('/admin/login')
     }
   }
 
-  if (to.path === '/admin/login' && isAuthenticated.value) {
+  if (to.path === '/admin/login' && loggedIn.value) {
     return navigateTo('/admin')
   }
 })
