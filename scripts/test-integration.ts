@@ -2,19 +2,20 @@
  * Manual integration checks against Neon.
  * Requires DATABASE_URL_TEST explicitly — never falls back to DATABASE_URL.
  *
- * Cleanup: only deletes rows created in this run (prefixed ids).
+ * Cleanup: only deletes rows created in this run (tracked IDs), via try/finally.
  * Does not drop/truncate tables or reset schema.
  */
 import 'dotenv/config'
+import { randomInt } from 'node:crypto'
 import { createInterface } from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'node:process'
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
-import { eq, like } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { adminUsers, courses } from '../server/database/schema'
 import { hashAdminPassword } from '../server/utils/password'
 
-const PREFIX = `it_${Date.now()}_`
+const PREFIX = `it_${Date.now()}_${randomInt(1_000_000)}_`
 
 async function confirmIfNeeded() {
   if (process.env.CI === 'true') return
@@ -39,51 +40,60 @@ async function main() {
     return
   }
 
-  if (process.env.DATABASE_URL && !process.env.DATABASE_URL_TEST) {
-    // unreachable due to check above; kept as documentation guard
-  }
-
   console.log('Integration target: Neon via DATABASE_URL_TEST (credentials not printed).')
   await confirmIfNeeded()
 
   const sql = neon(url)
   const db = drizzle(sql, { schema: { adminUsers, courses } })
 
-  const username = `${PREFIX}admin`.slice(0, 64)
-  const moodleCourseId = Number(`${Date.now()}`.slice(-9))
+  const createdAdminIds: string[] = []
+  const createdCourseIds: string[] = []
 
-  const passwordHash = await hashAdminPassword('Integration1Pass')
-  const [admin] = await db
-    .insert(adminUsers)
-    .values({
-      username,
-      displayName: 'Integration Admin',
-      passwordHash
-    })
-    .returning({ id: adminUsers.id })
+  try {
+    const username = `${PREFIX}admin`.slice(0, 64)
+    // Prefer a wide random bigint-safe positive id to avoid collisions with real Moodle IDs.
+    const moodleCourseId = randomInt(1_000_000_000, 2_000_000_000)
 
-  const [course] = await db
-    .insert(courses)
-    .values({
-      moodleCourseId,
-      name: `${PREFIX}course`,
-      notes: '',
-      isPublished: false
-    })
-    .returning({ id: courses.id })
+    const passwordHash = await hashAdminPassword('Integration1Pass')
+    const [admin] = await db
+      .insert(adminUsers)
+      .values({
+        username,
+        displayName: 'Integration Admin',
+        passwordHash
+      })
+      .returning({ id: adminUsers.id })
 
-  if (!admin || !course) {
-    throw new Error('Insert failed')
+    if (!admin) {
+      throw new Error('Admin insert failed')
+    }
+    createdAdminIds.push(admin.id)
+
+    const [course] = await db
+      .insert(courses)
+      .values({
+        moodleCourseId,
+        name: `${PREFIX}course`,
+        notes: '',
+        isPublished: false
+      })
+      .returning({ id: courses.id })
+
+    if (!course) {
+      throw new Error('Course insert failed')
+    }
+    createdCourseIds.push(course.id)
+
+    console.log('Integration smoke test passed (rows created).')
+  } finally {
+    for (const id of createdCourseIds) {
+      await db.delete(courses).where(eq(courses.id, id)).catch(() => undefined)
+    }
+    for (const id of createdAdminIds) {
+      await db.delete(adminUsers).where(eq(adminUsers.id, id)).catch(() => undefined)
+    }
+    console.log('Integration cleanup finished for this run\'s IDs.')
   }
-
-  // Cleanup only this run's rows
-  await db.delete(courses).where(eq(courses.id, course.id))
-  await db.delete(adminUsers).where(eq(adminUsers.id, admin.id))
-
-  // Ensure no leftover by prefix (admin username)
-  await db.delete(adminUsers).where(like(adminUsers.username, `${PREFIX}%`))
-
-  console.log('Integration smoke test passed (rows created and cleaned).')
 }
 
 main().catch((error) => {
