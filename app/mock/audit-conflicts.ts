@@ -34,7 +34,7 @@ export const seedAuditConflicts: AuditConflict[] = [
       userId: 1202
     },
     changedFields: ['participantName'],
-    riskLevel: 'medium',
+    riskLevel: 'critical',
     status: 'pending',
     reviewedAt: null,
     reviewedBy: null,
@@ -97,7 +97,7 @@ export const seedAuditConflicts: AuditConflict[] = [
       certificateId: 501,
       userId: 1202
     },
-    changedFields: ['documentNumber'],
+    changedFields: ['documentNumberNormalized'],
     riskLevel: 'critical',
     status: 'pending',
     reviewedAt: null,

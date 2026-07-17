@@ -168,7 +168,7 @@ export const importsRepository = {
           documentNumber: newDoc,
           documentNumberNormalized: normalizeDocument(newDoc)
         },
-        changedFields: ['documentNumber']
+        changedFields: ['documentNumberNormalized']
       })
     }
 
@@ -209,8 +209,8 @@ export const importsRepository = {
       total: input.rows.length,
       new: input.rows.filter(r => r.status === 'new').length,
       unchanged: input.rows.filter(r => r.status === 'unchanged').length,
-      updatable: input.rows.filter(r => r.status === 'updatable').length,
-      conflicts: input.rows.filter(r => r.status === 'critical_conflict').length,
+      conflict: input.rows.filter(r => r.status === 'conflict').length,
+      criticalConflict: input.rows.filter(r => r.status === 'critical_conflict').length,
       errors: input.rows.filter(r => r.status === 'error').length
     }
 
@@ -244,10 +244,10 @@ export const importsRepository = {
       })
     }
 
-    // Create audit for updatable + critical_conflict — never mutate snapshots
+    // Create audit for conflict + critical_conflict — never mutate snapshots
     const newAudits: AuditConflict[] = []
     for (const row of rows) {
-      if (row.status !== 'updatable' && row.status !== 'critical_conflict') continue
+      if (row.status !== 'conflict' && row.status !== 'critical_conflict') continue
       if (!row.storedSnapshot || !row.incomingData) continue
 
       newAudits.push({
@@ -284,7 +284,7 @@ export const importsRepository = {
       importedBy: input.importedBy,
       importedAt,
       counters,
-      status: (counters.conflicts + counters.updatable) > 0
+      status: (counters.criticalConflict + counters.conflict) > 0
         ? 'completed_with_conflicts'
         : counters.errors === counters.total
           ? 'failed'

@@ -8,7 +8,7 @@ defineProps<{
 function fieldLabel(field: string) {
   const map: Record<string, string> = {
     participantName: 'Nombre del participante',
-    documentNumber: 'Cédula',
+    documentNumberNormalized: 'Cédula',
     userId: 'Usuario Moodle',
     courseId: 'Curso asociado',
     certificateIssueId: 'certificate_issue_id',
@@ -100,7 +100,7 @@ function fieldLabel(field: string) {
             </dt>
             <dd
               class="font-mono"
-              :class="{ 'font-semibold text-warning': conflict.changedFields.includes('documentNumber') }"
+              :class="{ 'font-semibold text-warning': conflict.changedFields.includes('documentNumberNormalized') }"
             >
               {{ conflict.incomingData.documentNumber }}
             </dd>

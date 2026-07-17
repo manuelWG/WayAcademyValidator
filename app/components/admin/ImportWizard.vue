@@ -30,8 +30,8 @@ const counters = computed<ImportCounters>(() => ({
   total: previewRows.value.length,
   new: previewRows.value.filter(r => r.status === 'new').length,
   unchanged: previewRows.value.filter(r => r.status === 'unchanged').length,
-  updatable: previewRows.value.filter(r => r.status === 'updatable').length,
-  conflicts: previewRows.value.filter(r => r.status === 'critical_conflict').length,
+  conflict: previewRows.value.filter(r => r.status === 'conflict').length,
+  criticalConflict: previewRows.value.filter(r => r.status === 'critical_conflict').length,
   errors: previewRows.value.filter(r => r.status === 'error').length
 }))
 
@@ -285,7 +285,7 @@ function reset() {
         5. Confirmar importación
       </h2>
       <p class="text-sm text-muted">
-        Se importarán las filas nuevas. Las diferencias (updatable y conflictos) generarán auditoría
+        Se importarán las filas nuevas. Las diferencias (conflictos y conflictos críticos) generarán auditoría
         sin modificar los snapshots publicados. Las filas de otro curso se excluyen (error).
       </p>
       <AdminImportSummary :counters="counters" />

@@ -25,5 +25,3 @@ logs
 
 # Cursor
 .cursor/*
-!.cursor/plans/
-!.cursor/plans/*.plan.md

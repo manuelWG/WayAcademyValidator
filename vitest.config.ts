@@ -1,10 +1,23 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import { defineVitestProject } from '@nuxt/test-utils/config'
 
+const root = fileURLToPath(new URL('.', import.meta.url))
+
 export default defineConfig({
+  resolve: {
+    alias: {
+      '~~': root
+    }
+  },
   test: {
     projects: [
       {
+        resolve: {
+          alias: {
+            '~~': root
+          }
+        },
         test: {
           name: 'unit',
           include: ['tests/unit/**/*.spec.ts'],

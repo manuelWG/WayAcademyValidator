@@ -39,18 +39,18 @@ defineProps<{
       </div>
       <div>
         <p class="text-xs text-muted">
-          Con cambios
+          Conflictos
         </p>
         <p class="text-xl font-semibold text-info">
-          {{ counters.updatable }}
+          {{ counters.conflict }}
         </p>
       </div>
       <div>
         <p class="text-xs text-muted">
-          Conflictos
+          Críticos
         </p>
         <p class="text-xl font-semibold text-warning">
-          {{ counters.conflicts }}
+          {{ counters.criticalConflict }}
         </p>
       </div>
       <div>
