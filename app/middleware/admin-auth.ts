@@ -1,14 +1,23 @@
-export default defineNuxtRouteMiddleware(async (to) => {
-  const { loggedIn, fetch } = useUserSession()
-  await fetch()
+import { decideAdminRouteAccess } from '../utils/admin-route-access'
 
-  if (to.path.startsWith('/admin') && to.path !== '/admin/login') {
-    if (!loggedIn.value) {
-      return navigateTo('/admin/login')
-    }
+export default defineNuxtRouteMiddleware(async (to) => {
+  if (!to.path.startsWith('/admin')) {
+    return
   }
 
-  if (to.path === '/admin/login' && loggedIn.value) {
+  const { refreshSession } = useAdminSession()
+  const remote = await refreshSession()
+
+  const decision = decideAdminRouteAccess({
+    path: to.path,
+    remoteAuthenticated: remote.authenticated
+  })
+
+  if (decision === 'redirect-login') {
+    return navigateTo('/admin/login')
+  }
+
+  if (decision === 'redirect-admin') {
     return navigateTo('/admin')
   }
 })

@@ -4,10 +4,10 @@ import { computeDashboardStats } from '../utils/dashboard-stats'
 import { useMockStore } from './useMockStore'
 
 export function useAdminSession() {
-  const { loggedIn, user: sessionUser, clear, fetch: fetchSession } = useUserSession()
+  const { user: sessionUser, clear, fetch: fetchSession } = useUserSession()
 
   const session = computed<AdminSession>(() => ({
-    authenticated: Boolean(loggedIn.value && sessionUser.value),
+    authenticated: Boolean(sessionUser.value),
     user: sessionUser.value
       ? {
           username: sessionUser.value.username,
@@ -32,13 +32,17 @@ export function useAdminSession() {
     await clear()
   }
 
+  /**
+   * Revalidate against Neon via GET /api/auth/session.
+   * A sealed cookie alone is not enough: invalid/inactive admins clear the local session.
+   */
   async function refreshSession() {
-    await fetchSession()
-    // Server /api/auth/session clears invalid cookies; re-fetch sealed session
     const remote = await adminAuthRepository.getSession()
     if (!remote.authenticated) {
       await clear()
+      return remote
     }
+    await fetchSession()
     return remote
   }
 
