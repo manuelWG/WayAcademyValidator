@@ -1,5 +1,6 @@
 import type { AdminSession } from '../types/admin'
-import { adminAuthRepository } from '../repositories/admin-auth.repository'
+import { adminAuthRepository, type AuthFetch } from '../repositories/admin-auth.repository'
+import { refreshAdminSession } from '../utils/refresh-admin-session'
 import { computeDashboardStats } from '../utils/dashboard-stats'
 import { useMockStore } from './useMockStore'
 
@@ -34,16 +35,17 @@ export function useAdminSession() {
 
   /**
    * Revalidate against Neon via GET /api/auth/session.
+   * During SSR, useRequestFetch() forwards the incoming Cookie header.
    * A sealed cookie alone is not enough: invalid/inactive admins clear the local session.
    */
   async function refreshSession() {
-    const remote = await adminAuthRepository.getSession()
-    if (!remote.authenticated) {
-      await clear()
-      return remote
-    }
-    await fetchSession()
-    return remote
+    // useRequestFetch forwards incoming Cookie during SSR; on client it is $fetch.
+    const requestFetch = useRequestFetch() as AuthFetch
+    return refreshAdminSession({
+      getSession: () => adminAuthRepository.getSession(requestFetch),
+      clear,
+      fetchSession
+    })
   }
 
   return {
