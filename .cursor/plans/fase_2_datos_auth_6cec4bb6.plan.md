@@ -4,28 +4,28 @@ overview: Plan de la fase 2 para conectar Neon (rama dev) + Drizzle neon-http + 
 todos:
   - id: branch-setup
     content: "Verificar único archivo pendiente (este plan); crear feat/phase-2-data-auth desde main@3516155; primer commit docs: add phase 2 implementation plan"
-    status: in_progress
+    status: completed
   - id: deps-env
     content: Añadir deps estables (sin pg ni @types/bcryptjs), .env.example, nuxt-auth-utils y runtimeConfig
-    status: pending
+    status: completed
   - id: schema-migrate
     content: Solo admin_users+courses en Drizzle; modelo futuro en Markdown; migrar contra Neon dev
-    status: pending
+    status: completed
   - id: auth-real
     content: Auth con replaceUserSession, revalidación Neon, 401 unificado, create-admin interactivo
-    status: pending
+    status: completed
   - id: courses-persist
     content: APIs y UI de cursos reales (bigint Moodle, Zod estricto, Origin/JSON); desacoplar mock
-    status: pending
+    status: completed
   - id: transition-ui
     content: Dashboard híbrido demo/real y empty states de certificados en detalle curso
-    status: pending
+    status: completed
   - id: tests-ci
     content: test:unit en CI; build sin Neon (cliente lazy + SESSION ficticia CI); test:integration manual con DATABASE_URL_TEST
-    status: pending
+    status: completed
   - id: docs-delivery
     content: README/SECURITY, prerrequisitos externos y entrega con diff vs main sin merge/push
-    status: pending
+    status: completed
 isProject: false
 ---
 

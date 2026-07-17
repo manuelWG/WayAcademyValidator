@@ -29,11 +29,16 @@ npm run dev
 # Revisar SQL generado en server/database/migrations/ antes de aplicar
 npm run db:generate
 
-# Aplicar migraciones (no se ejecutan en build ni al arrancar la app)
-DATABASE_URL=<neon-dev> npm run db:migrate
+# Migrar SOLO la rama Neon "dev" (confirmación explícita obligatoria)
+# Interactivo (pide YES):
+MIGRATION_TARGET=dev DATABASE_URL=<neon-dev> npm run db:migrate
+
+# No interactivo:
+MIGRATION_TARGET=dev MIGRATE_CONFIRM=YES DATABASE_URL=<neon-dev> npm run db:migrate
 ```
 
 No uses `drizzle-kit push` como flujo principal. No edites migraciones ya aplicadas.
+Las migraciones **no** se ejecutan en build ni al arrancar la app.
 
 ### Primer administrador
 
@@ -41,13 +46,11 @@ No uses `drizzle-kit push` como flujo principal. No edites migraciones ya aplica
 npm run create-admin
 ```
 
-Flujo interactivo (password oculta). Alternativa no interactiva solo para automatización:
+Flujo interactivo (TTY, password oculta). Para una ejecución puntual no interactiva, pasa variables **solo en esa invocación** (no las guardes en `.env`):
 
 ```bash
 ADMIN_USERNAME=... ADMIN_DISPLAY_NAME=... ADMIN_PASSWORD=... npm run create-admin
 ```
-
-No documentes `ADMIN_PASSWORD` como configuración persistente en `.env`.
 
 Acceso: `/admin/login` — **ya no** existen credenciales demo (`admin` / `demo1234`).
 
@@ -80,7 +83,7 @@ Páginas → Composables → Repositorios cliente
 | `npm run test:unit` | Pruebas unitarias (sin Neon) |
 | `npm run test:integration` | Manual; exige `DATABASE_URL_TEST` (sin fallback a `DATABASE_URL`) |
 | `npm run db:generate` | Generar migración SQL |
-| `npm run db:migrate` | Aplicar migraciones a Neon |
+| `npm run db:migrate` | Migrar Neon `dev` (`MIGRATION_TARGET=dev` + confirmación `YES`) |
 | `npm run create-admin` | Crear administrador |
 
 ## Verificación antes de commit
