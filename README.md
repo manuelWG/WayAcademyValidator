@@ -4,8 +4,8 @@ Aplicación Nuxt para validar públicamente certificados académicos importados 
 
 ## Requisitos
 
-- Node.js 20+ (CI usa 22)
-- npm
+- Node.js 22 (consulta `.nvmrc`)
+- npm 10.9.8, la misma versión usada para generar `package-lock.json`
 - Proyecto Neon con rama **`dev`**
 - Variables locales en `.env` (nunca committed):
 
