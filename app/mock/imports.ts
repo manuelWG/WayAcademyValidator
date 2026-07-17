@@ -16,7 +16,7 @@ export const seedImports: ImportBatch[] = [
     courseName: 'Liderazgo estratégico',
     importedBy: 'admin',
     importedAt: '2026-03-05T12:00:00.000Z',
-    counters: { total: 2, new: 2, unchanged: 0, updatable: 0, conflicts: 0, errors: 0 },
+    counters: { total: 2, new: 2, unchanged: 0, conflict: 0, criticalConflict: 0, errors: 0 },
     status: 'completed',
     rows: [
       {
@@ -57,7 +57,7 @@ export const seedImports: ImportBatch[] = [
     courseName: 'Gestión de proyectos ágiles',
     importedBy: 'admin',
     importedAt: '2026-06-28T09:15:00.000Z',
-    counters: { total: 3, new: 2, unchanged: 1, updatable: 0, conflicts: 0, errors: 0 },
+    counters: { total: 3, new: 2, unchanged: 1, conflict: 0, criticalConflict: 0, errors: 0 },
     status: 'completed',
     rows: []
   },
@@ -69,7 +69,7 @@ export const seedImports: ImportBatch[] = [
     courseName: 'Liderazgo estratégico',
     importedBy: 'admin',
     importedAt: '2026-07-10T11:20:00.000Z',
-    counters: { total: 4, new: 0, unchanged: 1, updatable: 1, conflicts: 2, errors: 0 },
+    counters: { total: 4, new: 0, unchanged: 1, conflict: 0, criticalConflict: 3, errors: 0 },
     status: 'completed_with_conflicts',
     rows: [
       {
@@ -106,8 +106,8 @@ export const seedImports: ImportBatch[] = [
         certificateCode: 'WAY-LDR-2025-0043',
         participantName: 'Carlos A. Mejía',
         documentMasked: maskDocument('1.024.556.778'),
-        status: 'updatable',
-        reason: 'Cambio menor en nombre; requiere decisión administrativa',
+        status: 'critical_conflict',
+        reason: 'Cambio crítico de identidad: nombre del participante',
         storedSnapshot: seedCertificates[1]!.snapshot,
         incomingData: {
           participantName: 'Carlos A. Mejía',
@@ -174,7 +174,7 @@ export const seedImports: ImportBatch[] = [
           certificateId: 501,
           userId: 1202
         },
-        changedFields: ['documentNumber']
+        changedFields: ['documentNumberNormalized']
       }
     ]
   },
@@ -186,7 +186,7 @@ export const seedImports: ImportBatch[] = [
     courseName: 'Gestión de proyectos ágiles',
     importedBy: 'admin',
     importedAt: '2026-07-14T08:40:00.000Z',
-    counters: { total: 2, new: 0, unchanged: 1, updatable: 0, conflicts: 1, errors: 0 },
+    counters: { total: 2, new: 0, unchanged: 1, conflict: 0, criticalConflict: 1, errors: 0 },
     status: 'completed_with_conflicts',
     rows: [
       {

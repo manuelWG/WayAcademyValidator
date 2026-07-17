@@ -34,7 +34,7 @@ Snapshot histórico por certificado (sin tabla mutable de participantes).
 
 ## import_batches / import_rows
 
-Trazabilidad de lotes CSV (nombre archivo, hash, admin, contadores, estado) y filas clasificadas (`new` \| `unchanged` \| `updatable` \| `critical_conflict` \| `error`).
+Trazabilidad de lotes CSV (nombre archivo, hash, admin, contadores, estado) y filas clasificadas (`new` \| `unchanged` \| `conflict` \| `critical_conflict` \| `error`).
 
 ## audit_conflicts
 

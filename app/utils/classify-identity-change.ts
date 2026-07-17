@@ -1,28 +1,23 @@
 /**
  * Classify identity-related field changes for import audit (critical risk).
- * Used by unit tests now; CSV import will call this in a later phase.
+ * Delegates critical-field set to shared import domain (phase 3A).
  */
-const CRITICAL_FIELDS = new Set([
-  'participantName',
-  'documentNumber',
-  'documentNumberNormalized',
-  'userId',
-  'certificateIssueId',
-  'certificateId',
-  'courseId'
-])
+import {
+  hasCriticalImportChange,
+  isCriticalImportField
+} from '~~/shared/import/critical-fields'
 
 export type IdentityRiskLevel = 'critical' | 'high' | 'medium'
 
 export function isCriticalIdentityField(field: string): boolean {
-  return CRITICAL_FIELDS.has(field)
+  return isCriticalImportField(field)
 }
 
 export function classifyChangedFields(changedFields: string[]): {
   riskLevel: IdentityRiskLevel
   hasCriticalIdentityChange: boolean
 } {
-  const hasCriticalIdentityChange = changedFields.some(isCriticalIdentityField)
+  const hasCriticalIdentityChange = hasCriticalImportChange(changedFields)
   return {
     hasCriticalIdentityChange,
     riskLevel: hasCriticalIdentityChange ? 'critical' : 'medium'

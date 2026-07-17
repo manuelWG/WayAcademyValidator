@@ -1,35 +1,17 @@
 import type { CertificateSnapshot } from './certificate'
+import type { ImportIncomingData, ImportRowStatus } from '~~/shared/schemas/import'
+
+export type { ImportIncomingData, ImportRowStatus } from '~~/shared/schemas/import'
 
 export type ImportBatchStatus = 'completed' | 'completed_with_conflicts' | 'failed'
-
-export type ImportRowStatus
-  = | 'new'
-    | 'unchanged'
-    | 'updatable'
-    | 'critical_conflict'
-    | 'error'
 
 export interface ImportCounters {
   total: number
   new: number
   unchanged: number
-  updatable: number
-  conflicts: number
+  conflict: number
+  criticalConflict: number
   errors: number
-}
-
-export interface ImportIncomingData {
-  participantName: string
-  documentNumber: string
-  documentNumberNormalized: string
-  courseName: string
-  courseId: number
-  certificateCode: string
-  certificateCodeNormalized: string
-  issuedAt: string
-  certificateIssueId: number
-  certificateId: number
-  userId: number
 }
 
 export interface ImportPreviewRow {

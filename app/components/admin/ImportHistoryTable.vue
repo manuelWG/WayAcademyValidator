@@ -76,7 +76,7 @@ defineProps<{
             {{ item.counters.unchanged }}
           </td>
           <td class="px-3 py-3">
-            {{ item.counters.conflicts + item.counters.updatable }}
+            {{ item.counters.conflict + item.counters.criticalConflict }}
           </td>
           <td class="px-3 py-3">
             {{ item.counters.errors }}

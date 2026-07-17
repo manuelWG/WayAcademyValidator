@@ -1,18 +1,6 @@
-export interface CertificateMoodleIds {
-  certificateIssueId: number
-  certificateId: number
-  courseId: number
-  userId: number
-}
+import type { CertificateSnapshot } from '~~/shared/import/certificate-snapshot'
 
-export interface CertificateSnapshot {
-  participantName: string
-  documentNumber: string
-  documentNumberNormalized: string
-  courseName: string
-  issuedAt: string
-  moodle: CertificateMoodleIds
-}
+export type { CertificateMoodleIds, CertificateSnapshot } from '~~/shared/import/certificate-snapshot'
 
 export interface Certificate {
   id: string
