@@ -32,6 +32,22 @@ async function confirmIfNeeded() {
   }
 }
 
+function formatCleanupFailures(
+  results: PromiseSettledResult<unknown>[],
+  labels: string[]
+): string[] {
+  const messages: string[] = []
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      const reason = result.reason instanceof Error
+        ? result.reason.message
+        : String(result.reason)
+      messages.push(`${labels[index]}: ${reason}`)
+    }
+  })
+  return messages
+}
+
 async function main() {
   const url = process.env.DATABASE_URL_TEST?.trim()
   if (!url) {
@@ -48,10 +64,11 @@ async function main() {
 
   const createdAdminIds: string[] = []
   const createdCourseIds: string[] = []
+  let testError: unknown
+  let cleanupFailures: string[]
 
   try {
     const username = `${PREFIX}admin`.slice(0, 64)
-    // Prefer a wide random bigint-safe positive id to avoid collisions with real Moodle IDs.
     const moodleCourseId = randomInt(1_000_000_000, 2_000_000_000)
 
     const passwordHash = await hashAdminPassword('Integration1Pass')
@@ -85,14 +102,46 @@ async function main() {
     createdCourseIds.push(course.id)
 
     console.log('Integration smoke test passed (rows created).')
+  } catch (error) {
+    testError = error
   } finally {
+    const deletions: Array<Promise<unknown>> = []
+    const labels: string[] = []
+
     for (const id of createdCourseIds) {
-      await db.delete(courses).where(eq(courses.id, id)).catch(() => undefined)
+      labels.push(`course:${id}`)
+      deletions.push(db.delete(courses).where(eq(courses.id, id)))
     }
     for (const id of createdAdminIds) {
-      await db.delete(adminUsers).where(eq(adminUsers.id, id)).catch(() => undefined)
+      labels.push(`admin:${id}`)
+      deletions.push(db.delete(adminUsers).where(eq(adminUsers.id, id)))
     }
-    console.log('Integration cleanup finished for this run\'s IDs.')
+
+    const settled = await Promise.allSettled(deletions)
+    cleanupFailures = formatCleanupFailures(settled, labels)
+
+    if (cleanupFailures.length === 0 && deletions.length > 0) {
+      console.log('Integration cleanup finished for this run\'s IDs.')
+    } else if (cleanupFailures.length > 0) {
+      console.error('Integration cleanup failed for one or more tracked rows.')
+      for (const message of cleanupFailures) {
+        console.error(`- ${message}`)
+      }
+    }
+  }
+
+  if (testError) {
+    console.error('Integration test failed.')
+    if (process.env.DEBUG) console.error(testError)
+    if (cleanupFailures.length > 0) {
+      console.error('Cleanup also reported failures (see above).')
+    }
+    process.exitCode = 1
+    return
+  }
+
+  if (cleanupFailures.length > 0) {
+    process.exitCode = 1
   }
 }
 
