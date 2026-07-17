@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {
+  isMoodleCourseIdFieldDisabled,
+  moodleCourseIdFieldValue,
+  parseMoodleCourseIdInput
+} from '../../utils/parse-moodle-course-id'
+
 const props = defineProps<{
   initial?: {
     moodleCourseId?: number
@@ -13,34 +19,42 @@ const emit = defineEmits<{
   submit: [payload: { moodleCourseId: number, name: string, notes: string }]
 }>()
 
-const moodleCourseId = ref(props.initial?.moodleCourseId?.toString() || '')
+const moodleCourseId = ref(moodleCourseIdFieldValue(props.initial?.moodleCourseId))
 const name = ref(props.initial?.name || '')
 const notes = ref(props.initial?.notes || '')
 const errors = reactive({ moodleCourseId: '', name: '', notes: '' })
+const moodleIdDisabled = computed(() =>
+  isMoodleCourseIdFieldDisabled(props.initial?.moodleCourseId)
+)
 
 function validate() {
   errors.moodleCourseId = ''
   errors.name = ''
   errors.notes = ''
-  const idRaw = moodleCourseId.value.trim()
-  const idNum = Number(idRaw)
-  if (!idRaw) errors.moodleCourseId = 'Requerido'
-  else if (!/^\d+$/.test(idRaw) || !Number.isSafeInteger(idNum) || idNum <= 0) {
-    errors.moodleCourseId = 'Debe ser un entero positivo válido'
+
+  const parsed = parseMoodleCourseIdInput(moodleCourseId.value)
+  if (!parsed.ok) {
+    errors.moodleCourseId = parsed.error
   }
+
   const trimmedName = name.value.trim()
   if (!trimmedName) errors.name = 'Requerido'
   else if (trimmedName.length > 255) errors.name = 'Máximo 255 caracteres'
   if (notes.value.trim().length > 2000) {
     errors.notes = 'Máximo 2000 caracteres'
   }
-  return !errors.moodleCourseId && !errors.name && !errors.notes
+
+  if (errors.moodleCourseId || errors.name || errors.notes || !parsed.ok) {
+    return null
+  }
+  return parsed.value
 }
 
 function onSubmit() {
-  if (!validate()) return
+  const idNum = validate()
+  if (idNum == null) return
   emit('submit', {
-    moodleCourseId: Number(moodleCourseId.value),
+    moodleCourseId: idNum,
     name: name.value,
     notes: notes.value
   })
@@ -58,8 +72,10 @@ function onSubmit() {
     >
       <UInput
         v-model="moodleCourseId"
-        type="number"
-        :disabled="!!initial?.moodleCourseId"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        :disabled="moodleIdDisabled"
         placeholder="101"
       />
     </UFormField>
