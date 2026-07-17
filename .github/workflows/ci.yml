@@ -11,6 +11,10 @@ jobs:
         os: [ubuntu-latest]
         node: [22]
 
+    env:
+      # Non-production placeholder for nuxt-auth-utils during build only. Never reuse in production.
+      NUXT_SESSION_PASSWORD: ci-only-session-password-min-32-chars!!
+
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -29,3 +33,9 @@ jobs:
 
       - name: Typecheck
         run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
