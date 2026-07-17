@@ -1,10 +1,10 @@
 /**
  * Interactive / automated script to create an admin user in Neon (dev branch).
  *
- * Interactive:
+ * Interactive (TTY):
  *   npm run create-admin
  *
- * Non-interactive (automation only; do not put ADMIN_PASSWORD in .env.example as persistent config):
+ * Non-interactive (one-shot env vars for a single command — do not store in .env):
  *   ADMIN_USERNAME=... ADMIN_DISPLAY_NAME=... ADMIN_PASSWORD=... npm run create-admin
  */
 import 'dotenv/config'
@@ -28,19 +28,19 @@ function maskTarget(): string {
   return 'Neon (DATABASE_URL from environment — branch should be "dev")'
 }
 
+function isInteractiveTty(): boolean {
+  return Boolean(input.isTTY && output.isTTY)
+}
+
 async function prompt(rl: ReturnType<typeof createInterface>, question: string): Promise<string> {
   return (await rl.question(question)).trimEnd()
 }
 
 async function promptHidden(question: string): Promise<string> {
-  // Best-effort hidden input (works when stdin is a TTY).
-  if (!input.isTTY || !output.isTTY) {
-    const rl = createInterface({ input, output })
-    try {
-      return await prompt(rl, question)
-    } finally {
-      rl.close()
-    }
+  if (!isInteractiveTty()) {
+    throw new Error(
+      'Interactive password entry requires a TTY. Use ADMIN_USERNAME, ADMIN_DISPLAY_NAME and ADMIN_PASSWORD for one-shot non-interactive runs.'
+    )
   }
 
   output.write(question)
@@ -75,6 +75,37 @@ async function promptHidden(question: string): Promise<string> {
   })
 }
 
+function readNonInteractiveEnv(): {
+  rawUsername: string
+  rawDisplayName: string
+  password: string
+} | null {
+  const rawUsername = process.env.ADMIN_USERNAME
+  const rawDisplayName = process.env.ADMIN_DISPLAY_NAME
+  const password = process.env.ADMIN_PASSWORD
+
+  const anySet = Boolean(rawUsername || rawDisplayName || password)
+  const allSet = Boolean(rawUsername && rawDisplayName && password)
+
+  if (!anySet) return null
+
+  if (!allSet) {
+    const missing: string[] = []
+    if (!rawUsername) missing.push('ADMIN_USERNAME')
+    if (!rawDisplayName) missing.push('ADMIN_DISPLAY_NAME')
+    if (!password) missing.push('ADMIN_PASSWORD')
+    throw new Error(
+      `Non-interactive create-admin requires all of ADMIN_USERNAME, ADMIN_DISPLAY_NAME, ADMIN_PASSWORD. Missing: ${missing.join(', ')}`
+    )
+  }
+
+  return {
+    rawUsername: rawUsername!,
+    rawDisplayName: rawDisplayName!,
+    password: password!
+  }
+}
+
 async function main() {
   const url = process.env.DATABASE_URL?.trim()
   if (!url) {
@@ -84,34 +115,41 @@ async function main() {
   }
 
   console.log(`Connecting to configured database: ${maskTarget()}`)
-  // Do not print the connection string.
-
-  const fromEnv = Boolean(
-    process.env.ADMIN_USERNAME
-    && process.env.ADMIN_DISPLAY_NAME
-    && process.env.ADMIN_PASSWORD
-  )
+  // Do not print the connection string or password.
 
   let rawUsername: string
   let rawDisplayName: string
   let password: string
   let confirm: string
 
-  if (fromEnv) {
-    rawUsername = process.env.ADMIN_USERNAME!
-    rawDisplayName = process.env.ADMIN_DISPLAY_NAME!
-    password = process.env.ADMIN_PASSWORD!
-    confirm = password
-  } else {
-    const rl = createInterface({ input, output })
-    try {
-      rawUsername = await prompt(rl, 'Username: ')
-      rawDisplayName = await prompt(rl, 'Display name: ')
-    } finally {
-      rl.close()
+  try {
+    const fromEnv = readNonInteractiveEnv()
+    if (fromEnv) {
+      rawUsername = fromEnv.rawUsername
+      rawDisplayName = fromEnv.rawDisplayName
+      password = fromEnv.password
+      confirm = password
+    } else if (!isInteractiveTty()) {
+      console.error(
+        'Error: no TTY for interactive prompts. Provide ADMIN_USERNAME, ADMIN_DISPLAY_NAME and ADMIN_PASSWORD for a one-shot run.'
+      )
+      process.exitCode = 1
+      return
+    } else {
+      const rl = createInterface({ input, output })
+      try {
+        rawUsername = await prompt(rl, 'Username: ')
+        rawDisplayName = await prompt(rl, 'Display name: ')
+      } finally {
+        rl.close()
+      }
+      password = await promptHidden('Password (hidden): ')
+      confirm = await promptHidden('Confirm password (hidden): ')
     }
-    password = await promptHidden('Password (hidden): ')
-    confirm = await promptHidden('Confirm password (hidden): ')
+  } catch (error) {
+    console.error(`Error: ${error instanceof Error ? error.message : 'invalid input'}`)
+    process.exitCode = 1
+    return
   }
 
   if (password !== confirm) {
