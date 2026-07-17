@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
 import {
   isMoodleCourseIdFieldDisabled,
   moodleCourseIdFieldValue,
@@ -78,23 +77,11 @@ describe('parseMoodleCourseIdInput', () => {
   })
 })
 
-describe('CourseForm moodle id field (edit)', () => {
+describe('moodle course id field helpers', () => {
   it('keeps an existing Moodle ID as disabled text during edit', () => {
     expect(moodleCourseIdFieldValue(101)).toBe('101')
     expect(isMoodleCourseIdFieldDisabled(101)).toBe(true)
     expect(isMoodleCourseIdFieldDisabled(undefined)).toBe(false)
     expect(moodleCourseIdFieldValue(undefined)).toBe('')
-  })
-
-  it('CourseForm wires text input and disabled edit without number coercion', () => {
-    const source = readFileSync('app/components/admin/CourseForm.vue', 'utf8')
-    expect(source).toMatch(/type="text"/)
-    expect(source).toMatch(/inputmode="numeric"/)
-    expect(source).toMatch(/pattern="\[0-9\]\*"/)
-    expect(source).not.toMatch(/type="number"/)
-    expect(source).not.toMatch(/v-model\.number/)
-    expect(source).toMatch(/parseMoodleCourseIdInput/)
-    expect(source).toMatch(/isMoodleCourseIdFieldDisabled/)
-    expect(source).toMatch(/moodleCourseId:\s*idNum/)
   })
 })

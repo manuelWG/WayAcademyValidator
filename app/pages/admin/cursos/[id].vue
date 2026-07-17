@@ -1,4 +1,11 @@
 <script setup lang="ts">
+import {
+  coursePublishFailedMessage,
+  coursePublishSuccessMessage,
+  courseUpdateFailedMessage,
+  courseUpdatedMessage
+} from '../../../utils/course-admin-messages'
+
 definePageMeta({
   layout: 'admin',
   middleware: 'admin-auth'
@@ -19,31 +26,34 @@ onMounted(async () => {
 })
 
 async function onSave(payload: { moodleCourseId: number, name: string, notes: string }) {
+  if (saving.value) return
   saving.value = true
   try {
     course.value = await update(courseId.value, {
       name: payload.name,
       notes: payload.notes
     })
-    toast.add({ title: 'Curso actualizado', color: 'success' })
+    toast.add(courseUpdatedMessage(course.value?.name ?? payload.name))
   } catch {
-    toast.add({ title: 'No se pudo guardar', color: 'error' })
+    toast.add(courseUpdateFailedMessage())
   } finally {
     saving.value = false
   }
 }
 
 async function togglePublish() {
-  if (!course.value) return
+  if (!course.value || saving.value) return
+  const publishing = !course.value.isPublished
+  const courseName = course.value.name
   saving.value = true
   try {
-    course.value = await setPublished(courseId.value, !course.value.isPublished)
-    toast.add({
-      title: course.value?.isPublished ? 'Curso publicado' : 'Curso despublicado',
-      color: 'success'
-    })
+    course.value = await setPublished(courseId.value, publishing)
+    toast.add(coursePublishSuccessMessage(
+      course.value?.name ?? courseName,
+      course.value?.isPublished ?? publishing
+    ))
   } catch {
-    toast.add({ title: 'No se pudo actualizar la publicación', color: 'error' })
+    toast.add(coursePublishFailedMessage(publishing))
   } finally {
     saving.value = false
   }
@@ -68,6 +78,7 @@ async function togglePublish() {
           <UButton
             variant="soft"
             :loading="saving"
+            :disabled="saving"
             @click="togglePublish"
           >
             {{ course.isPublished ? 'Despublicar' : 'Publicar' }}

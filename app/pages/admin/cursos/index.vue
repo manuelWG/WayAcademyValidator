@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+  coursePublishFailedMessage,
+  coursePublishSuccessMessage
+} from '../../../utils/course-admin-messages'
+
 definePageMeta({
   layout: 'admin',
   middleware: 'admin-auth'
@@ -21,18 +26,15 @@ onMounted(async () => {
 })
 
 async function togglePublish(id: string, next: boolean) {
+  if (loadingId.value) return
+  const current = courses.value.find(c => c.id === id)
+  const courseName = current?.name ?? 'curso'
   loadingId.value = id
   try {
-    await setPublished(id, next)
-    toast.add({
-      title: next ? 'Curso publicado' : 'Curso despublicado',
-      color: 'success'
-    })
+    const updated = await setPublished(id, next)
+    toast.add(coursePublishSuccessMessage(updated?.name ?? courseName, next))
   } catch {
-    toast.add({
-      title: 'No se pudo actualizar el curso',
-      color: 'error'
-    })
+    toast.add(coursePublishFailedMessage(next))
   } finally {
     loadingId.value = null
   }
@@ -128,6 +130,7 @@ async function togglePublish(id: string, next: boolean) {
                   size="xs"
                   variant="soft"
                   :loading="loadingId === course.id"
+                  :disabled="loadingId !== null"
                   @click="togglePublish(course.id, !course.isPublished)"
                 >
                   {{ course.isPublished ? 'Despublicar' : 'Publicar' }}
