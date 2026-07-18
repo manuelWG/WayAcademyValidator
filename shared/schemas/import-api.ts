@@ -85,6 +85,14 @@ export interface ImportBatchDto {
 export type AuditRiskLevelDto = 'critical' | 'high' | 'medium'
 export type AuditConflictStatusDto = 'pending' | 'accepted' | 'rejected'
 
+export const auditConflictIdParamSchema = z.string().uuid()
+export const auditDecisionBodySchema = z.object({
+  decision: z.enum(['accepted', 'rejected']),
+  observation: z.string().trim().min(1).max(2000)
+}).strict()
+
+export type AuditDecisionBody = z.infer<typeof auditDecisionBodySchema>
+
 export interface AuditConflictDto {
   id: string
   certificateCode: string
