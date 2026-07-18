@@ -1,0 +1,1623 @@
+{
+  "id": "bd38036b-a4c4-4657-b4b6-25268f121b28",
+  "prevId": "15979afd-b5c8-4fc9-97c7-7d5d297a1d92",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.admin_users": {
+      "name": "admin_users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "last_login_at": {
+          "name": "last_login_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "admin_users_username_unique": {
+          "name": "admin_users_username_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "username"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.audit_conflicts": {
+      "name": "audit_conflicts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "import_batch_id": {
+          "name": "import_batch_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "import_row_id": {
+          "name": "import_row_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "course_id": {
+          "name": "course_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "certificate_id": {
+          "name": "certificate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "collision_by_code_certificate_id": {
+          "name": "collision_by_code_certificate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "collision_by_issue_id_certificate_id": {
+          "name": "collision_by_issue_id_certificate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "original_file_name": {
+          "name": "original_file_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_hash": {
+          "name": "file_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "csv_row_number": {
+          "name": "csv_row_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imported_by_admin_id": {
+          "name": "imported_by_admin_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "detected_at": {
+          "name": "detected_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "stored_snapshot_data": {
+          "name": "stored_snapshot_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stored_document_lookup_hmac": {
+          "name": "stored_document_lookup_hmac",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "collision_by_code_snapshot_data": {
+          "name": "collision_by_code_snapshot_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "collision_by_code_document_lookup_hmac": {
+          "name": "collision_by_code_document_lookup_hmac",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "collision_by_issue_id_snapshot_data": {
+          "name": "collision_by_issue_id_snapshot_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "collision_by_issue_id_document_lookup_hmac": {
+          "name": "collision_by_issue_id_document_lookup_hmac",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "incoming_data": {
+          "name": "incoming_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "incoming_document_lookup_hmac": {
+          "name": "incoming_document_lookup_hmac",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "changed_fields": {
+          "name": "changed_fields",
+          "type": "import_changed_field[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "issue_codes": {
+          "name": "issue_codes",
+          "type": "import_issue_code[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "risk_level": {
+          "name": "risk_level",
+          "type": "audit_risk_level",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "audit_conflict_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "reviewed_at": {
+          "name": "reviewed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reviewed_by_admin_id": {
+          "name": "reviewed_by_admin_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "observation": {
+          "name": "observation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "audit_conflicts_status_detected_at_idx": {
+          "name": "audit_conflicts_status_detected_at_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "detected_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "audit_conflicts_course_status_idx": {
+          "name": "audit_conflicts_course_status_idx",
+          "columns": [
+            {
+              "expression": "course_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "audit_conflicts_import_batch_idx": {
+          "name": "audit_conflicts_import_batch_idx",
+          "columns": [
+            {
+              "expression": "import_batch_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "audit_conflicts_course_id_courses_id_fk": {
+          "name": "audit_conflicts_course_id_courses_id_fk",
+          "tableFrom": "audit_conflicts",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "course_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "audit_conflicts_certificate_id_certificates_id_fk": {
+          "name": "audit_conflicts_certificate_id_certificates_id_fk",
+          "tableFrom": "audit_conflicts",
+          "tableTo": "certificates",
+          "columnsFrom": [
+            "certificate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "audit_conflicts_collision_by_code_certificate_id_certificates_id_fk": {
+          "name": "audit_conflicts_collision_by_code_certificate_id_certificates_id_fk",
+          "tableFrom": "audit_conflicts",
+          "tableTo": "certificates",
+          "columnsFrom": [
+            "collision_by_code_certificate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "audit_conflicts_collision_by_issue_id_certificate_id_certificates_id_fk": {
+          "name": "audit_conflicts_collision_by_issue_id_certificate_id_certificates_id_fk",
+          "tableFrom": "audit_conflicts",
+          "tableTo": "certificates",
+          "columnsFrom": [
+            "collision_by_issue_id_certificate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "audit_conflicts_imported_by_admin_id_admin_users_id_fk": {
+          "name": "audit_conflicts_imported_by_admin_id_admin_users_id_fk",
+          "tableFrom": "audit_conflicts",
+          "tableTo": "admin_users",
+          "columnsFrom": [
+            "imported_by_admin_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "audit_conflicts_reviewed_by_admin_id_admin_users_id_fk": {
+          "name": "audit_conflicts_reviewed_by_admin_id_admin_users_id_fk",
+          "tableFrom": "audit_conflicts",
+          "tableTo": "admin_users",
+          "columnsFrom": [
+            "reviewed_by_admin_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "audit_conflicts_import_row_fk": {
+          "name": "audit_conflicts_import_row_fk",
+          "tableFrom": "audit_conflicts",
+          "tableTo": "import_rows",
+          "columnsFrom": [
+            "import_row_id",
+            "import_batch_id"
+          ],
+          "columnsTo": [
+            "id",
+            "batch_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "audit_conflicts_import_row_unique": {
+          "name": "audit_conflicts_import_row_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "import_row_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "audit_conflicts_csv_row_number_positive": {
+          "name": "audit_conflicts_csv_row_number_positive",
+          "value": "\"audit_conflicts\".\"csv_row_number\" > 0"
+        },
+        "audit_conflicts_original_file_name_not_empty": {
+          "name": "audit_conflicts_original_file_name_not_empty",
+          "value": "btrim(\"audit_conflicts\".\"original_file_name\") <> ''"
+        },
+        "audit_conflicts_file_hash_format": {
+          "name": "audit_conflicts_file_hash_format",
+          "value": "\"audit_conflicts\".\"file_hash\" ~ '^[0-9a-f]{64}$'"
+        },
+        "audit_conflicts_incoming_hmac_format": {
+          "name": "audit_conflicts_incoming_hmac_format",
+          "value": "\"audit_conflicts\".\"incoming_document_lookup_hmac\" ~ '^[0-9a-f]{64}$'"
+        },
+        "audit_conflicts_stored_hmac_format": {
+          "name": "audit_conflicts_stored_hmac_format",
+          "value": "\"audit_conflicts\".\"stored_document_lookup_hmac\" IS NULL OR \"audit_conflicts\".\"stored_document_lookup_hmac\" ~ '^[0-9a-f]{64}$'"
+        },
+        "audit_conflicts_collision_by_code_hmac_format": {
+          "name": "audit_conflicts_collision_by_code_hmac_format",
+          "value": "\"audit_conflicts\".\"collision_by_code_document_lookup_hmac\" IS NULL OR \"audit_conflicts\".\"collision_by_code_document_lookup_hmac\" ~ '^[0-9a-f]{64}$'"
+        },
+        "audit_conflicts_collision_by_issue_id_hmac_format": {
+          "name": "audit_conflicts_collision_by_issue_id_hmac_format",
+          "value": "\"audit_conflicts\".\"collision_by_issue_id_document_lookup_hmac\" IS NULL OR \"audit_conflicts\".\"collision_by_issue_id_document_lookup_hmac\" ~ '^[0-9a-f]{64}$'"
+        },
+        "audit_conflicts_changed_fields_no_null": {
+          "name": "audit_conflicts_changed_fields_no_null",
+          "value": "array_position(\"audit_conflicts\".\"changed_fields\", NULL) IS NULL"
+        },
+        "audit_conflicts_issue_codes_no_null": {
+          "name": "audit_conflicts_issue_codes_no_null",
+          "value": "array_position(\"audit_conflicts\".\"issue_codes\", NULL) IS NULL"
+        },
+        "audit_conflicts_review_shape": {
+          "name": "audit_conflicts_review_shape",
+          "value": "(\n      \"audit_conflicts\".\"status\" = 'pending' AND \"audit_conflicts\".\"reviewed_at\" IS NULL AND \"audit_conflicts\".\"reviewed_by_admin_id\" IS NULL\n    ) OR (\n      \"audit_conflicts\".\"status\" IN ('accepted', 'rejected')\n      AND \"audit_conflicts\".\"reviewed_at\" IS NOT NULL\n      AND \"audit_conflicts\".\"reviewed_by_admin_id\" IS NOT NULL\n    )"
+        },
+        "audit_conflicts_shape_check": {
+          "name": "audit_conflicts_shape_check",
+          "value": "(\n      \"audit_conflicts\".\"certificate_id\" IS NOT NULL\n      AND \"audit_conflicts\".\"stored_snapshot_data\" IS NOT NULL\n      AND \"audit_conflicts\".\"stored_document_lookup_hmac\" IS NOT NULL\n      AND \"audit_conflicts\".\"collision_by_code_certificate_id\" IS NULL\n      AND \"audit_conflicts\".\"collision_by_issue_id_certificate_id\" IS NULL\n      AND \"audit_conflicts\".\"collision_by_code_snapshot_data\" IS NULL\n      AND \"audit_conflicts\".\"collision_by_issue_id_snapshot_data\" IS NULL\n      AND \"audit_conflicts\".\"collision_by_code_document_lookup_hmac\" IS NULL\n      AND \"audit_conflicts\".\"collision_by_issue_id_document_lookup_hmac\" IS NULL\n      AND cardinality(\"audit_conflicts\".\"changed_fields\") > 0\n      AND cardinality(\"audit_conflicts\".\"issue_codes\") = 0\n    ) OR (\n      \"audit_conflicts\".\"certificate_id\" IS NULL\n      AND \"audit_conflicts\".\"stored_snapshot_data\" IS NULL\n      AND \"audit_conflicts\".\"stored_document_lookup_hmac\" IS NULL\n      AND \"audit_conflicts\".\"collision_by_code_certificate_id\" IS NOT NULL\n      AND \"audit_conflicts\".\"collision_by_issue_id_certificate_id\" IS NOT NULL\n      AND \"audit_conflicts\".\"collision_by_code_certificate_id\" <> \"audit_conflicts\".\"collision_by_issue_id_certificate_id\"\n      AND \"audit_conflicts\".\"collision_by_code_snapshot_data\" IS NOT NULL\n      AND \"audit_conflicts\".\"collision_by_issue_id_snapshot_data\" IS NOT NULL\n      AND \"audit_conflicts\".\"collision_by_code_document_lookup_hmac\" IS NOT NULL\n      AND \"audit_conflicts\".\"collision_by_issue_id_document_lookup_hmac\" IS NOT NULL\n      AND cardinality(\"audit_conflicts\".\"changed_fields\") = 0\n      AND \"audit_conflicts\".\"issue_codes\" = ARRAY['IDENTITY_COLLISION']::import_issue_code[]\n    )"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.certificates": {
+      "name": "certificates",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "source_import_row_id": {
+          "name": "source_import_row_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "course_id": {
+          "name": "course_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "certificate_code": {
+          "name": "certificate_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "certificate_code_normalized": {
+          "name": "certificate_code_normalized",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "moodle_certificate_issue_id": {
+          "name": "moodle_certificate_issue_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "moodle_certificate_id": {
+          "name": "moodle_certificate_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "moodle_course_id": {
+          "name": "moodle_course_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "moodle_user_id": {
+          "name": "moodle_user_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "course_name": {
+          "name": "course_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "participant_name": {
+          "name": "participant_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_ciphertext": {
+          "name": "document_ciphertext",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_nonce": {
+          "name": "document_nonce",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_auth_tag": {
+          "name": "document_auth_tag",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_lookup_hmac": {
+          "name": "document_lookup_hmac",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_key_version": {
+          "name": "document_key_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issued_at": {
+          "name": "issued_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imported_at": {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "certificates_document_lookup_hmac_idx": {
+          "name": "certificates_document_lookup_hmac_idx",
+          "columns": [
+            {
+              "expression": "document_lookup_hmac",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "certificates_course_id_idx": {
+          "name": "certificates_course_id_idx",
+          "columns": [
+            {
+              "expression": "course_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "certificates_source_import_row_id_import_rows_id_fk": {
+          "name": "certificates_source_import_row_id_import_rows_id_fk",
+          "tableFrom": "certificates",
+          "tableTo": "import_rows",
+          "columnsFrom": [
+            "source_import_row_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "certificates_course_id_courses_id_fk": {
+          "name": "certificates_course_id_courses_id_fk",
+          "tableFrom": "certificates",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "course_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "certificates_source_import_row_unique": {
+          "name": "certificates_source_import_row_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "source_import_row_id"
+          ]
+        },
+        "certificates_certificate_code_normalized_unique": {
+          "name": "certificates_certificate_code_normalized_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "certificate_code_normalized"
+          ]
+        },
+        "certificates_moodle_certificate_issue_id_unique": {
+          "name": "certificates_moodle_certificate_issue_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "moodle_certificate_issue_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "certificates_moodle_certificate_issue_id_range": {
+          "name": "certificates_moodle_certificate_issue_id_range",
+          "value": "\"certificates\".\"moodle_certificate_issue_id\" > 0 AND \"certificates\".\"moodle_certificate_issue_id\" <= 9007199254740991"
+        },
+        "certificates_moodle_certificate_id_range": {
+          "name": "certificates_moodle_certificate_id_range",
+          "value": "\"certificates\".\"moodle_certificate_id\" > 0 AND \"certificates\".\"moodle_certificate_id\" <= 9007199254740991"
+        },
+        "certificates_moodle_course_id_range": {
+          "name": "certificates_moodle_course_id_range",
+          "value": "\"certificates\".\"moodle_course_id\" > 0 AND \"certificates\".\"moodle_course_id\" <= 9007199254740991"
+        },
+        "certificates_moodle_user_id_range": {
+          "name": "certificates_moodle_user_id_range",
+          "value": "\"certificates\".\"moodle_user_id\" > 0 AND \"certificates\".\"moodle_user_id\" <= 9007199254740991"
+        },
+        "certificates_certificate_code_normalized_not_empty": {
+          "name": "certificates_certificate_code_normalized_not_empty",
+          "value": "char_length(\"certificates\".\"certificate_code_normalized\") > 0"
+        },
+        "certificates_document_nonce_length": {
+          "name": "certificates_document_nonce_length",
+          "value": "octet_length(\"certificates\".\"document_nonce\") = 12"
+        },
+        "certificates_document_auth_tag_length": {
+          "name": "certificates_document_auth_tag_length",
+          "value": "octet_length(\"certificates\".\"document_auth_tag\") = 16"
+        },
+        "certificates_document_ciphertext_length": {
+          "name": "certificates_document_ciphertext_length",
+          "value": "octet_length(\"certificates\".\"document_ciphertext\") > 0"
+        },
+        "certificates_document_lookup_hmac_format": {
+          "name": "certificates_document_lookup_hmac_format",
+          "value": "\"certificates\".\"document_lookup_hmac\" ~ '^[0-9a-f]{64}$'"
+        },
+        "certificates_document_key_version_range": {
+          "name": "certificates_document_key_version_range",
+          "value": "\"certificates\".\"document_key_version\" BETWEEN 1 AND 2147483647"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.courses": {
+      "name": "courses",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "moodle_course_id": {
+          "name": "moodle_course_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "is_published": {
+          "name": "is_published",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "last_import_at": {
+          "name": "last_import_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "courses_moodle_course_id_unique": {
+          "name": "courses_moodle_course_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "moodle_course_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.import_batches": {
+      "name": "import_batches",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "course_id": {
+          "name": "course_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by_admin_id": {
+          "name": "created_by_admin_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "original_file_name": {
+          "name": "original_file_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_hash": {
+          "name": "file_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attempt_number": {
+          "name": "attempt_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "retry_of_batch_id": {
+          "name": "retry_of_batch_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "retry_authorized_by_admin_id": {
+          "name": "retry_authorized_by_admin_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "retry_authorized_at": {
+          "name": "retry_authorized_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "retry_reason": {
+          "name": "retry_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "import_batch_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "total_count": {
+          "name": "total_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "new_count": {
+          "name": "new_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "unchanged_count": {
+          "name": "unchanged_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "conflict_count": {
+          "name": "conflict_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "critical_conflict_count": {
+          "name": "critical_conflict_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "error_count": {
+          "name": "error_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "processed_rows": {
+          "name": "processed_rows",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "import_batches_retry_of_unique": {
+          "name": "import_batches_retry_of_unique",
+          "columns": [
+            {
+              "expression": "retry_of_batch_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"import_batches\".\"retry_of_batch_id\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "import_batches_one_active_attempt_unique": {
+          "name": "import_batches_one_active_attempt_unique",
+          "columns": [
+            {
+              "expression": "course_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "file_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"import_batches\".\"status\" IN ('pending', 'processing', 'paused')",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "import_batches_status_updated_at_idx": {
+          "name": "import_batches_status_updated_at_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "updated_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "import_batches_course_created_at_idx": {
+          "name": "import_batches_course_created_at_idx",
+          "columns": [
+            {
+              "expression": "course_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "import_batches_course_hash_status_idx": {
+          "name": "import_batches_course_hash_status_idx",
+          "columns": [
+            {
+              "expression": "course_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "file_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "import_batches_course_id_courses_id_fk": {
+          "name": "import_batches_course_id_courses_id_fk",
+          "tableFrom": "import_batches",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "course_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "import_batches_created_by_admin_id_admin_users_id_fk": {
+          "name": "import_batches_created_by_admin_id_admin_users_id_fk",
+          "tableFrom": "import_batches",
+          "tableTo": "admin_users",
+          "columnsFrom": [
+            "created_by_admin_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "import_batches_retry_authorized_by_admin_id_admin_users_id_fk": {
+          "name": "import_batches_retry_authorized_by_admin_id_admin_users_id_fk",
+          "tableFrom": "import_batches",
+          "tableTo": "admin_users",
+          "columnsFrom": [
+            "retry_authorized_by_admin_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "import_batches_retry_parent_fk": {
+          "name": "import_batches_retry_parent_fk",
+          "tableFrom": "import_batches",
+          "tableTo": "import_batches",
+          "columnsFrom": [
+            "retry_of_batch_id",
+            "course_id",
+            "file_hash"
+          ],
+          "columnsTo": [
+            "id",
+            "course_id",
+            "file_hash"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "import_batches_course_hash_attempt_unique": {
+          "name": "import_batches_course_hash_attempt_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "course_id",
+            "file_hash",
+            "attempt_number"
+          ]
+        },
+        "import_batches_id_course_hash_unique": {
+          "name": "import_batches_id_course_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "course_id",
+            "file_hash"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "import_batches_attempt_number_positive": {
+          "name": "import_batches_attempt_number_positive",
+          "value": "\"import_batches\".\"attempt_number\" > 0"
+        },
+        "import_batches_file_hash_format": {
+          "name": "import_batches_file_hash_format",
+          "value": "\"import_batches\".\"file_hash\" ~ '^[0-9a-f]{64}$'"
+        },
+        "import_batches_original_file_name_not_empty": {
+          "name": "import_batches_original_file_name_not_empty",
+          "value": "btrim(\"import_batches\".\"original_file_name\") <> ''"
+        },
+        "import_batches_retry_shape": {
+          "name": "import_batches_retry_shape",
+          "value": "(\n      \"import_batches\".\"attempt_number\" = 1\n      AND \"import_batches\".\"retry_of_batch_id\" IS NULL\n      AND \"import_batches\".\"retry_authorized_by_admin_id\" IS NULL\n      AND \"import_batches\".\"retry_authorized_at\" IS NULL\n      AND \"import_batches\".\"retry_reason\" IS NULL\n    ) OR (\n      \"import_batches\".\"attempt_number\" > 1\n      AND \"import_batches\".\"retry_of_batch_id\" IS NOT NULL\n      AND \"import_batches\".\"retry_authorized_by_admin_id\" IS NOT NULL\n      AND \"import_batches\".\"retry_authorized_at\" IS NOT NULL\n      AND \"import_batches\".\"retry_reason\" IS NOT NULL\n      AND btrim(\"import_batches\".\"retry_reason\") <> ''\n    )"
+        },
+        "import_batches_counters_non_negative": {
+          "name": "import_batches_counters_non_negative",
+          "value": "\n      \"import_batches\".\"total_count\" >= 0\n      AND \"import_batches\".\"new_count\" >= 0\n      AND \"import_batches\".\"unchanged_count\" >= 0\n      AND \"import_batches\".\"conflict_count\" >= 0\n      AND \"import_batches\".\"critical_conflict_count\" >= 0\n      AND \"import_batches\".\"error_count\" >= 0\n      AND \"import_batches\".\"processed_rows\" >= 0\n    "
+        },
+        "import_batches_processed_within_total": {
+          "name": "import_batches_processed_within_total",
+          "value": "\"import_batches\".\"processed_rows\" <= \"import_batches\".\"total_count\""
+        },
+        "import_batches_processed_sum": {
+          "name": "import_batches_processed_sum",
+          "value": "\"import_batches\".\"processed_rows\" = \"import_batches\".\"new_count\" + \"import_batches\".\"unchanged_count\" + \"import_batches\".\"conflict_count\" + \"import_batches\".\"critical_conflict_count\" + \"import_batches\".\"error_count\""
+        },
+        "import_batches_status_shape": {
+          "name": "import_batches_status_shape",
+          "value": "(\n      \"import_batches\".\"status\" = 'pending'\n      AND \"import_batches\".\"started_at\" IS NULL\n      AND \"import_batches\".\"completed_at\" IS NULL\n      AND \"import_batches\".\"processed_rows\" = 0\n      AND \"import_batches\".\"new_count\" = 0\n      AND \"import_batches\".\"unchanged_count\" = 0\n      AND \"import_batches\".\"conflict_count\" = 0\n      AND \"import_batches\".\"critical_conflict_count\" = 0\n      AND \"import_batches\".\"error_count\" = 0\n    ) OR (\n      \"import_batches\".\"status\" = 'processing'\n      AND \"import_batches\".\"started_at\" IS NOT NULL\n      AND \"import_batches\".\"completed_at\" IS NULL\n      AND \"import_batches\".\"total_count\" > 0\n    ) OR (\n      \"import_batches\".\"status\" = 'paused'\n      AND \"import_batches\".\"started_at\" IS NOT NULL\n      AND \"import_batches\".\"completed_at\" IS NULL\n      AND \"import_batches\".\"total_count\" > 0\n    ) OR (\n      \"import_batches\".\"status\" = 'completed'\n      AND \"import_batches\".\"started_at\" IS NOT NULL\n      AND \"import_batches\".\"completed_at\" IS NOT NULL\n      AND \"import_batches\".\"total_count\" > 0\n      AND \"import_batches\".\"processed_rows\" = \"import_batches\".\"total_count\"\n      AND \"import_batches\".\"conflict_count\" = 0\n      AND \"import_batches\".\"critical_conflict_count\" = 0\n      AND \"import_batches\".\"error_count\" = 0\n    ) OR (\n      \"import_batches\".\"status\" = 'completed_with_conflicts'\n      AND \"import_batches\".\"started_at\" IS NOT NULL\n      AND \"import_batches\".\"completed_at\" IS NOT NULL\n      AND \"import_batches\".\"total_count\" > 0\n      AND \"import_batches\".\"processed_rows\" = \"import_batches\".\"total_count\"\n      AND (\"import_batches\".\"conflict_count\" > 0 OR \"import_batches\".\"critical_conflict_count\" > 0 OR \"import_batches\".\"error_count\" > 0)\n    ) OR (\n      \"import_batches\".\"status\" = 'failed'\n      AND \"import_batches\".\"completed_at\" IS NOT NULL\n      AND (\n        (\n          \"import_batches\".\"started_at\" IS NULL\n          AND \"import_batches\".\"processed_rows\" = 0\n          AND \"import_batches\".\"new_count\" = 0\n          AND \"import_batches\".\"unchanged_count\" = 0\n          AND \"import_batches\".\"conflict_count\" = 0\n          AND \"import_batches\".\"critical_conflict_count\" = 0\n          AND \"import_batches\".\"error_count\" = 0\n        ) OR (\n          \"import_batches\".\"started_at\" IS NOT NULL\n        )\n      )\n    )"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.import_rows": {
+      "name": "import_rows",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "batch_id": {
+          "name": "batch_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "row_number": {
+          "name": "row_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "import_row_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "raw_without_document": {
+          "name": "raw_without_document",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_ciphertext": {
+          "name": "document_ciphertext",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_nonce": {
+          "name": "document_nonce",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_auth_tag": {
+          "name": "document_auth_tag",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_key_version": {
+          "name": "document_key_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_lookup_hmac": {
+          "name": "document_lookup_hmac",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "incoming_data": {
+          "name": "incoming_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "certificate_code_normalized": {
+          "name": "certificate_code_normalized",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "moodle_certificate_issue_id": {
+          "name": "moodle_certificate_issue_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stored_snapshot_data": {
+          "name": "stored_snapshot_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stored_document_lookup_hmac": {
+          "name": "stored_document_lookup_hmac",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "matched_certificate_id": {
+          "name": "matched_certificate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "collision_by_code_certificate_id": {
+          "name": "collision_by_code_certificate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "collision_by_issue_id_certificate_id": {
+          "name": "collision_by_issue_id_certificate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "changed_fields": {
+          "name": "changed_fields",
+          "type": "import_changed_field[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "issue_codes": {
+          "name": "issue_codes",
+          "type": "import_issue_code[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "processed_at": {
+          "name": "processed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "import_rows_batch_status_row_idx": {
+          "name": "import_rows_batch_status_row_idx",
+          "columns": [
+            {
+              "expression": "batch_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "row_number",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "import_rows_batch_code_idx": {
+          "name": "import_rows_batch_code_idx",
+          "columns": [
+            {
+              "expression": "batch_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "certificate_code_normalized",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "import_rows_batch_issue_id_idx": {
+          "name": "import_rows_batch_issue_id_idx",
+          "columns": [
+            {
+              "expression": "batch_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "moodle_certificate_issue_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "import_rows_batch_id_import_batches_id_fk": {
+          "name": "import_rows_batch_id_import_batches_id_fk",
+          "tableFrom": "import_rows",
+          "tableTo": "import_batches",
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "import_rows_matched_certificate_id_certificates_id_fk": {
+          "name": "import_rows_matched_certificate_id_certificates_id_fk",
+          "tableFrom": "import_rows",
+          "tableTo": "certificates",
+          "columnsFrom": [
+            "matched_certificate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "import_rows_collision_by_code_certificate_id_certificates_id_fk": {
+          "name": "import_rows_collision_by_code_certificate_id_certificates_id_fk",
+          "tableFrom": "import_rows",
+          "tableTo": "certificates",
+          "columnsFrom": [
+            "collision_by_code_certificate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "import_rows_collision_by_issue_id_certificate_id_certificates_id_fk": {
+          "name": "import_rows_collision_by_issue_id_certificate_id_certificates_id_fk",
+          "tableFrom": "import_rows",
+          "tableTo": "certificates",
+          "columnsFrom": [
+            "collision_by_issue_id_certificate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "import_rows_batch_row_number_unique": {
+          "name": "import_rows_batch_row_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "batch_id",
+            "row_number"
+          ]
+        },
+        "import_rows_id_batch_unique": {
+          "name": "import_rows_id_batch_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "batch_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "import_rows_row_number_positive": {
+          "name": "import_rows_row_number_positive",
+          "value": "\"import_rows\".\"row_number\" > 0"
+        },
+        "import_rows_document_nonce_length": {
+          "name": "import_rows_document_nonce_length",
+          "value": "octet_length(\"import_rows\".\"document_nonce\") = 12"
+        },
+        "import_rows_document_auth_tag_length": {
+          "name": "import_rows_document_auth_tag_length",
+          "value": "octet_length(\"import_rows\".\"document_auth_tag\") = 16"
+        },
+        "import_rows_document_key_version_range": {
+          "name": "import_rows_document_key_version_range",
+          "value": "\"import_rows\".\"document_key_version\" BETWEEN 1 AND 2147483647"
+        },
+        "import_rows_document_lookup_hmac_format": {
+          "name": "import_rows_document_lookup_hmac_format",
+          "value": "\"import_rows\".\"document_lookup_hmac\" IS NULL OR \"import_rows\".\"document_lookup_hmac\" ~ '^[0-9a-f]{64}$'"
+        },
+        "import_rows_stored_document_lookup_hmac_format": {
+          "name": "import_rows_stored_document_lookup_hmac_format",
+          "value": "\"import_rows\".\"stored_document_lookup_hmac\" IS NULL OR \"import_rows\".\"stored_document_lookup_hmac\" ~ '^[0-9a-f]{64}$'"
+        },
+        "import_rows_issue_id_range": {
+          "name": "import_rows_issue_id_range",
+          "value": "\"import_rows\".\"moodle_certificate_issue_id\" IS NULL OR (\"import_rows\".\"moodle_certificate_issue_id\" > 0 AND \"import_rows\".\"moodle_certificate_issue_id\" <= 9007199254740991)"
+        },
+        "import_rows_match_references_shape": {
+          "name": "import_rows_match_references_shape",
+          "value": "(\n      \"import_rows\".\"matched_certificate_id\" IS NULL\n      AND \"import_rows\".\"collision_by_code_certificate_id\" IS NULL\n      AND \"import_rows\".\"collision_by_issue_id_certificate_id\" IS NULL\n    ) OR (\n      \"import_rows\".\"matched_certificate_id\" IS NOT NULL\n      AND \"import_rows\".\"collision_by_code_certificate_id\" IS NULL\n      AND \"import_rows\".\"collision_by_issue_id_certificate_id\" IS NULL\n    ) OR (\n      \"import_rows\".\"matched_certificate_id\" IS NULL\n      AND \"import_rows\".\"collision_by_code_certificate_id\" IS NOT NULL\n      AND \"import_rows\".\"collision_by_issue_id_certificate_id\" IS NOT NULL\n      AND \"import_rows\".\"collision_by_code_certificate_id\" <> \"import_rows\".\"collision_by_issue_id_certificate_id\"\n    )"
+        },
+        "import_rows_changed_fields_no_null": {
+          "name": "import_rows_changed_fields_no_null",
+          "value": "array_position(\"import_rows\".\"changed_fields\", NULL) IS NULL"
+        },
+        "import_rows_issue_codes_no_null": {
+          "name": "import_rows_issue_codes_no_null",
+          "value": "array_position(\"import_rows\".\"issue_codes\", NULL) IS NULL"
+        },
+        "import_rows_status_processed_at_sync": {
+          "name": "import_rows_status_processed_at_sync",
+          "value": "(\"import_rows\".\"status\" IS NULL AND \"import_rows\".\"processed_at\" IS NULL) OR (\"import_rows\".\"status\" IS NOT NULL AND \"import_rows\".\"processed_at\" IS NOT NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.audit_conflict_status": {
+      "name": "audit_conflict_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "accepted",
+        "rejected"
+      ]
+    },
+    "public.audit_risk_level": {
+      "name": "audit_risk_level",
+      "schema": "public",
+      "values": [
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "public.import_batch_status": {
+      "name": "import_batch_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "processing",
+        "paused",
+        "completed",
+        "completed_with_conflicts",
+        "failed"
+      ]
+    },
+    "public.import_changed_field": {
+      "name": "import_changed_field",
+      "schema": "public",
+      "values": [
+        "certificateCode",
+        "certificateIssueId",
+        "certificateId",
+        "courseId",
+        "userId",
+        "participantName",
+        "documentNumberNormalized",
+        "courseName",
+        "issuedAt"
+      ]
+    },
+    "public.import_issue_code": {
+      "name": "import_issue_code",
+      "schema": "public",
+      "values": [
+        "MISSING_FIELD",
+        "INVALID_NUMBER",
+        "INVALID_ISSUED_AT",
+        "DUPLICATE_CERTIFICATE_CODE",
+        "DUPLICATE_CERTIFICATE_ISSUE_ID",
+        "COURSE_MISMATCH",
+        "IDENTITY_COLLISION"
+      ]
+    },
+    "public.import_row_status": {
+      "name": "import_row_status",
+      "schema": "public",
+      "values": [
+        "new",
+        "unchanged",
+        "conflict",
+        "critical_conflict",
+        "error"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
