@@ -2,12 +2,20 @@
 
 Este documento describe controles que **deben** implementarse antes de producción.
 
-## Estado fase 2
+## Estado actual
 
 - Autenticación administrativa y cursos usan Neon + sesiones selladas (`nuxt-auth-utils`).
 - Consulta pública, importación CSV y cifrado de documento **aún no** están en producción.
-- Modelo futuro de cifrado/HMAC: ver [`DATA-MODEL-FUTURE.md`](DATA-MODEL-FUTURE.md).
-- Claves `DOCUMENT_ENCRYPTION_KEY` / `DOCUMENT_LOOKUP_HMAC_KEY` no son obligatorias hasta la fase de documentos.
+- **Fase 3B**: existen las primitivas server-only de cifrado/HMAC en
+  `server/security/` (`document-keys.ts`, `document-crypto.ts`) y el schema de
+  persistencia, pero **no están integradas** a ningún flujo: importación,
+  auditoría, certificados y consulta pública siguen en mock.
+- Modelo de cifrado/HMAC: ver [`DATA-MODEL-FUTURE.md`](DATA-MODEL-FUTURE.md).
+- Claves `DOCUMENT_ENCRYPTION_KEY`, `DOCUMENT_ENCRYPTION_KEY_VERSION` y
+  `DOCUMENT_LOOKUP_HMAC_KEY`: server-only, lazy y fail-closed. No se leen ni
+  validan al importar módulos, hacer build o ejecutar tests; solo al pedir
+  material criptográfico. No son obligatorias hasta la fase de documentos.
+- `app/` y `shared/` no importan `server/security` ni `node:crypto`.
 
 ## Controles obligatorios antes de producción
 

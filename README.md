@@ -2,6 +2,8 @@
 
 Aplicación Nuxt para validar públicamente certificados académicos importados desde Moodle. La **fase 2** conecta autenticación administrativa y cursos a **Neon PostgreSQL** (rama `dev`); certificados, importaciones, auditoría y consulta pública siguen en **mock**.
 
+La **fase 3B** añade el schema Drizzle de importación/auditoría (`certificates`, `import_batches`, `import_rows`, `audit_conflicts`) y las primitivas de protección documental server-only (AES-256-GCM + HMAC en `server/security/`). El schema y las primitivas **existen**, pero no están integrados: los módulos siguen en mock y la migración generada (`0001_*`) **no se aplica** en build ni al arrancar.
+
 ## Requisitos
 
 - Node.js 22 (consulta `.nvmrc`)
