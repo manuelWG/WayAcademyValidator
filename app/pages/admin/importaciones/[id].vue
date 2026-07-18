@@ -6,7 +6,7 @@ definePageMeta({
 
 const route = useRoute()
 const { getById } = useImports()
-const { conflicts } = useAudit()
+const { conflicts, list: listConflicts } = useAudit()
 
 const loading = ref(true)
 const batch = ref<Awaited<ReturnType<typeof getById>>>(null)
@@ -15,8 +15,15 @@ const relatedConflicts = computed(() =>
 )
 
 onMounted(async () => {
-  batch.value = await getById(String(route.params.id))
-  loading.value = false
+  try {
+    const [loadedBatch] = await Promise.all([
+      getById(String(route.params.id)),
+      listConflicts()
+    ])
+    batch.value = loadedBatch
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 

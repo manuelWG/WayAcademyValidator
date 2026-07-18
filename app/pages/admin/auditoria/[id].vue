@@ -6,7 +6,6 @@ definePageMeta({
 
 const route = useRoute()
 const { getById, decide } = useAudit()
-const { user } = useAdminSession()
 const toast = useToast()
 
 const conflict = ref<Awaited<ReturnType<typeof getById>>>(null)
@@ -21,18 +20,21 @@ onMounted(async () => {
 
 async function onDecide(decision: 'accepted' | 'rejected') {
   if (!conflict.value) return
+  if (!observation.value.trim()) {
+    toast.add({ title: 'Escribe una observación', color: 'error' })
+    return
+  }
   loading.value = true
   try {
     conflict.value = await decide(
       conflict.value.id,
       decision,
-      user.value?.username || 'admin',
       observation.value
     )
     toast.add({
       title: decision === 'accepted' ? 'Conflicto aceptado' : 'Conflicto rechazado',
       description: decision === 'accepted'
-        ? 'El snapshot publicado no se modifica en este prototipo. La aplicación del cambio queda para una fase futura.'
+        ? 'La decisión quedó registrada. El snapshot publicado no se modifica automáticamente.'
         : 'Se conserva el snapshot publicado.',
       color: decision === 'accepted' ? 'success' : 'neutral'
     })
@@ -70,7 +72,7 @@ async function onDecide(decision: 'accepted' | 'rejected') {
         color="info"
         variant="subtle"
         title="Regla de snapshot"
-        description="Aceptar un conflicto no aplica el cambio al certificado publicado en este prototipo. Solo registra la decisión administrativa."
+        description="Aceptar un conflicto no aplica el cambio al certificado publicado. Solo registra la decisión administrativa."
       />
 
       <AdminAuditDiffPanel

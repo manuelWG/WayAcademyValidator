@@ -4,7 +4,16 @@ definePageMeta({
   middleware: 'admin-auth'
 })
 
-const { conflicts } = useAudit()
+const { conflicts, list } = useAudit()
+const loading = ref(true)
+
+onMounted(async () => {
+  try {
+    await list()
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
@@ -14,8 +23,9 @@ const { conflicts } = useAudit()
       description="Diferencias detectadas sobre certificados existentes. El snapshot publicado no se modifica automáticamente."
     />
 
+    <SharedLoadingBlock v-if="loading" />
     <div
-      v-if="conflicts.length"
+      v-else-if="conflicts.length"
       class="space-y-3"
     >
       <AdminAuditConflictCard

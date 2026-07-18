@@ -4,18 +4,18 @@ definePageMeta({
   middleware: 'admin-auth'
 })
 
-const { demoDashboardStats } = useAdminSession()
+const { dashboardStats } = useAdminSession()
 const { list, publishedCount } = useCourses()
-const { imports } = useImports()
-const { pending } = useAudit()
+const { imports, list: listImports } = useImports()
+const { pending, list: listAudit } = useAudit()
 
-const loadingCourses = ref(true)
+const loadingDashboard = ref(true)
 
 onMounted(async () => {
   try {
-    await list()
+    await Promise.all([list(), listImports(), listAudit()])
   } finally {
-    loadingCourses.value = false
+    loadingDashboard.value = false
   }
 })
 
@@ -51,40 +51,40 @@ const pendingPreview = computed(() => pending.value.slice(0, 4))
       color="warning"
       variant="subtle"
       title="Datos parcialmente reales"
-      description="Cursos y sesión usan Neon. Certificados, importaciones y auditoría siguen en modo demostración."
+      description="Cursos, importaciones y auditoría usan Neon. La consulta pública y sus métricas de certificados permanecen en modo demostración."
     />
 
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5 mb-8">
       <AdminStatCard
         label="Cursos habilitados"
-        :value="loadingCourses ? '…' : publishedCount"
+        :value="loadingDashboard ? '…' : publishedCount"
         icon="i-lucide-graduation-cap"
         source="real"
       />
       <AdminStatCard
         label="Certificados importados"
-        :value="demoDashboardStats.importedCertificates"
+        :value="dashboardStats.importedCertificates"
         icon="i-lucide-award"
         source="demo"
       />
       <AdminStatCard
         label="Participantes con certificados"
-        :value="demoDashboardStats.participantsWithCertificates"
+        :value="dashboardStats.participantsWithCertificates"
         icon="i-lucide-users"
         source="demo"
       />
       <AdminStatCard
         label="Última importación"
-        :value="formatDate(demoDashboardStats.lastImportAt)"
+        :value="loadingDashboard ? '…' : formatDate(dashboardStats.lastImportAt)"
         icon="i-lucide-clock"
-        source="demo"
+        source="real"
       />
       <AdminStatCard
         label="Conflictos pendientes"
-        :value="demoDashboardStats.pendingConflicts"
+        :value="loadingDashboard ? '…' : dashboardStats.pendingConflicts"
         icon="i-lucide-shield-alert"
-        source="demo"
-        :hint="demoDashboardStats.pendingConflicts ? 'Requieren decisión administrativa' : undefined"
+        source="real"
+        :hint="dashboardStats.pendingConflicts ? 'Requieren decisión administrativa' : undefined"
       />
     </div>
 
@@ -93,7 +93,6 @@ const pendingPreview = computed(() => pending.value.slice(0, 4))
         <div class="flex items-center justify-between">
           <h2 class="font-medium text-highlighted">
             Importaciones recientes
-            <span class="ml-2 text-xs font-normal text-muted">(Demo)</span>
           </h2>
           <UButton
             to="/admin/importaciones"
@@ -117,7 +116,6 @@ const pendingPreview = computed(() => pending.value.slice(0, 4))
         <div class="flex items-center justify-between">
           <h2 class="font-medium text-highlighted">
             Conflictos detectados
-            <span class="ml-2 text-xs font-normal text-muted">(Demo)</span>
           </h2>
           <UButton
             to="/admin/auditoria"

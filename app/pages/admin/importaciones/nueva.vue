@@ -9,7 +9,7 @@ definePageMeta({
   <div>
     <SharedPageHeader
       title="Nueva importación"
-      description="Asistente visual con procesamiento simulado"
+      description="Carga, valida y confirma un archivo CSV en el servidor"
     />
     <AdminImportWizard />
   </div>

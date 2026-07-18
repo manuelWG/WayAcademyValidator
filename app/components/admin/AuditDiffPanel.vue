@@ -27,7 +27,10 @@ function fieldLabel(field: string) {
         <h3 class="font-medium text-highlighted">
           Snapshot publicado (actual)
         </h3>
-        <dl class="space-y-2 text-sm">
+        <dl
+          v-if="conflict.storedSnapshot"
+          class="space-y-2 text-sm"
+        >
           <div class="flex justify-between gap-2">
             <dt class="text-muted">
               Participante
@@ -39,7 +42,7 @@ function fieldLabel(field: string) {
               Documento
             </dt>
             <dd class="font-mono">
-              {{ conflict.storedSnapshot.documentNumber }}
+              No expuesto por seguridad
             </dd>
           </div>
           <div class="flex justify-between gap-2">
@@ -59,7 +62,7 @@ function fieldLabel(field: string) {
               issue_id
             </dt>
             <dd class="font-mono">
-              {{ conflict.storedSnapshot.moodle.certificateIssueId }}
+              {{ conflict.storedSnapshot.certificateIssueId }}
             </dd>
           </div>
           <div class="flex justify-between gap-2">
@@ -67,7 +70,7 @@ function fieldLabel(field: string) {
               user_id
             </dt>
             <dd class="font-mono">
-              {{ conflict.storedSnapshot.moodle.userId }}
+              {{ conflict.storedSnapshot.userId }}
             </dd>
           </div>
           <div class="flex justify-between gap-2">
@@ -75,10 +78,16 @@ function fieldLabel(field: string) {
               course_id
             </dt>
             <dd class="font-mono">
-              {{ conflict.storedSnapshot.moodle.courseId }}
+              {{ conflict.storedSnapshot.courseId }}
             </dd>
           </div>
         </dl>
+        <p
+          v-else
+          class="text-sm text-muted"
+        >
+          No hay un snapshot único disponible para este conflicto.
+        </p>
       </div>
 
       <div class="rounded-xl border border-warning/40 bg-warning/5 p-4 space-y-3">
@@ -102,7 +111,7 @@ function fieldLabel(field: string) {
               class="font-mono"
               :class="{ 'font-semibold text-warning': conflict.changedFields.includes('documentNumberNormalized') }"
             >
-              {{ conflict.incomingData.documentNumber }}
+              {{ conflict.documentMasked }}
             </dd>
           </div>
           <div class="flex justify-between gap-2">
