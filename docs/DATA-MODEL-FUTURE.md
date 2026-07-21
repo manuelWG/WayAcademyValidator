@@ -1,15 +1,15 @@
-# Modelo de datos futuro (schema definido en 3B, no aplicado)
+# Modelo de datos de importación y auditoría
 
 Este documento describe el modelo de importación/auditoría.
 
-**Fase 3B** añade los exports `pgTable()` de `certificates`, `import_batches`,
-`import_rows` y `audit_conflicts` bajo `server/database/schema/`, junto a seis
-enums SQL, y genera una migración aditiva (`0001_*`) que **no se aplica** en 3B.
-Importaciones, auditoría, certificados y consulta pública **siguen en mock**: el
-schema y las primitivas de cifrado existen, pero no hay flujo operativo.
+La migración aditiva `0001_*` está aplicada en Neon `dev` y materializa los
+exports `pgTable()` de `certificates`, `import_batches`, `import_rows` y
+`audit_conflicts`, junto a sus seis enums SQL. Importaciones y auditoría tienen
+flujo operativo real mediante endpoints Nitro, servicios server-only y Drizzle.
 
-Tablas reales aplicadas hoy: `admin_users`, `courses`. El resto queda definido en
-schema/migración generada pero sin aplicar a Neon.
+La consulta pública de certificados permanece mock y fuera del alcance de esta
+implementación. Por ello, los certificados persistidos por una importación real
+todavía no aparecen en dicha consulta.
 
 ## certificates
 
@@ -82,7 +82,7 @@ Aceptar/rechazar **nunca** muta certificados automáticamente (fase futura).
 
 Auditoría de consultas públicas (sin filtrar documentos completos en logs).
 
-## Protección de documento (primitivas disponibles en 3B, no integradas)
+## Protección de documento (integrada en el backend real)
 
 - AES-256-GCM del original: `document_ciphertext`, `document_nonce` (12 bytes),
   `document_auth_tag` (16 bytes) y `document_key_version` (integer, `1..2147483647`).
@@ -92,9 +92,24 @@ Auditoría de consultas públicas (sin filtrar documentos completos en logs).
 - HMAC-SHA-256 de búsqueda con clave **independiente**; `normalizeDocument()`
   antes del HMAC; salida lowercase hex de 64. Normalizado vacío se rechaza para
   certificados; staging guarda HMAC null.
-- Al convertir una fila `new` en certificado (3D), se descifra con el contexto de
+- Al convertir una fila `new` en certificado, se descifra con el contexto de
   la fila y se **recifra** con el contexto del certificado; nunca se copia el
   ciphertext/nonce/tag directamente.
 - Claves server-only (`server/security/`), lazy y fail-closed:
   `DOCUMENT_ENCRYPTION_KEY`, `DOCUMENT_ENCRYPTION_KEY_VERSION`,
-  `DOCUMENT_LOOKUP_HMAC_KEY` (no obligatorias para build/tests).
+  `DOCUMENT_LOOKUP_HMAC_KEY` (no obligatorias para build/tests unitarios, sí para
+  el flujo real y la integración).
+
+## Flujo operativo actual
+
+1. El upload valida un CSV Moodle estricto de nueve columnas y crea un lote.
+2. El backend cifra el documento por fila, clasifica y persiste la preview en
+   estado `paused`.
+3. La confirmación recifra filas `new` como certificados y crea
+   `audit_conflicts` para conflictos, dejando el lote en `completed` o
+   `completed_with_conflicts`.
+4. Auditoría permite aceptar o rechazar un conflicto con observación y revisor;
+   la decisión no modifica automáticamente el certificado.
+
+Los DTOs sólo exponen `documentMasked`; `incomingData`, `storedSnapshot` y JSONB
+persistidos excluyen tanto el documento original como su normalización.

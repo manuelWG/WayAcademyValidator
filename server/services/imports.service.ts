@@ -167,13 +167,13 @@ export function parseImportCsv(data: Buffer): ParsedCsvRow[] {
   })
 }
 
-function withoutDocument(incoming: ClassifiedImportRow['incoming']): IncomingImportDataWithoutDocument | null {
+export function withoutDocument(incoming: ClassifiedImportRow['incoming']): IncomingImportDataWithoutDocument | null {
   if (!incoming) return null
   const { documentNumber: _documentNumber, documentNumberNormalized: _normalized, ...safe } = incoming
   return safe
 }
 
-function rawWithoutDocument(raw: RawImportCsvRow): RawImportRowWithoutDocument {
+export function rawWithoutDocument(raw: RawImportCsvRow): RawImportRowWithoutDocument {
   const { document_number: _documentNumber, ...safe } = raw
   return safe
 }
@@ -274,6 +274,17 @@ function buildCounters(rows: ClassifiedImportRow[]) {
     errorCount: rows.filter(row => row.status === 'error').length,
     processedRows: rows.length
   }
+}
+
+export function terminalImportBatchStatus(counters: Pick<
+  ImportBatchRow,
+  'conflictCount' | 'criticalConflictCount' | 'errorCount'
+>): 'completed' | 'completed_with_conflicts' {
+  return counters.conflictCount > 0
+    || counters.criticalConflictCount > 0
+    || counters.errorCount > 0
+    ? 'completed_with_conflicts'
+    : 'completed'
 }
 
 async function markBatchFailed(batchId: string) {
@@ -664,11 +675,7 @@ export async function confirmImportBatch(batchId: string, adminId: string): Prom
       .update(courses)
       .set({ lastImportAt: now, updatedAt: now })
       .where(eq(courses.id, batch.courseId))
-    const terminalStatus = batch.conflictCount > 0
-      || batch.criticalConflictCount > 0
-      || batch.errorCount > 0
-      ? 'completed_with_conflicts'
-      : 'completed'
+    const terminalStatus = terminalImportBatchStatus(batch)
     await tx
       .update(importBatches)
       .set({ status: terminalStatus, completedAt: now, updatedAt: now })

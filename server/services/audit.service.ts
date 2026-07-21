@@ -26,7 +26,7 @@ type AuditJoinedRow = {
   importRow: ImportRow
 }
 
-function incomingToDto(incoming: IncomingImportDataWithoutDocument): ImportIncomingDataDto {
+export function incomingToDto(incoming: IncomingImportDataWithoutDocument): ImportIncomingDataDto {
   return {
     participantName: incoming.participantName,
     courseName: incoming.courseName,
@@ -40,7 +40,7 @@ function incomingToDto(incoming: IncomingImportDataWithoutDocument): ImportIncom
   }
 }
 
-function snapshotToDto(
+export function snapshotToDto(
   snapshot: StoredCertificateSnapshotWithoutDocument | null
 ): StoredCertificateSnapshotDto | null {
   if (!snapshot) return null

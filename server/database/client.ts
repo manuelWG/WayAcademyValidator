@@ -1,10 +1,10 @@
 import process from 'node:process'
-import { neon } from '@neondatabase/serverless'
-import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http'
+import { Pool } from '@neondatabase/serverless'
+import { drizzle, type NeonDatabase } from 'drizzle-orm/neon-serverless'
 import { createError } from 'h3'
 import * as schema from './schema'
 
-export type AppDatabase = NeonHttpDatabase<typeof schema>
+export type AppDatabase = NeonDatabase<typeof schema>
 
 let db: AppDatabase | null = null
 
@@ -27,7 +27,7 @@ export function resolveDatabaseUrl(): string | undefined {
 }
 
 /**
- * Lazy Neon HTTP + Drizzle client.
+ * Lazy Neon WebSocket + Drizzle client with interactive transaction support.
  * Importing this module must not open a connection or require DATABASE_URL.
  */
 export function useDb(): AppDatabase {
@@ -42,8 +42,8 @@ export function useDb(): AppDatabase {
     })
   }
 
-  const sql = neon(url)
-  db = drizzle(sql, { schema })
+  const pool = new Pool({ connectionString: url })
+  db = drizzle(pool, { schema })
   return db
 }
 
