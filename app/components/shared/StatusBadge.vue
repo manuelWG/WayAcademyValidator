@@ -7,6 +7,8 @@ const props = defineProps<{
 const color = computed(() => {
   const map: Record<string, 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'primary'> = {
     pending: 'warning',
+    processing: 'info',
+    paused: 'warning',
     accepted: 'success',
     rejected: 'error',
     completed: 'success',
@@ -31,6 +33,8 @@ const display = computed(() => {
   if (props.label) return props.label
   const labels: Record<string, string> = {
     pending: 'Pendiente',
+    processing: 'Procesando',
+    paused: 'En espera de confirmación',
     accepted: 'Aceptado',
     rejected: 'Rechazado',
     completed: 'Completada',

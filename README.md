@@ -1,19 +1,24 @@
 # WayAcademyValidator
 
-Aplicación Nuxt para validar públicamente certificados académicos importados desde Moodle. La **fase 2** conecta autenticación administrativa y cursos a **Neon PostgreSQL** (rama `dev`); certificados, importaciones, auditoría y consulta pública siguen en **mock**.
+Aplicación Nuxt para importar y auditar certificados académicos de Moodle y ofrecer una consulta pública. Autenticación, cursos, importaciones y auditoría usan backend real con **Neon PostgreSQL**. La consulta pública de certificados permanece en **mock** y no refleja todavía los certificados creados por las importaciones reales.
 
-La **fase 3B** añade el schema Drizzle de importación/auditoría (`certificates`, `import_batches`, `import_rows`, `audit_conflicts`) y las primitivas de protección documental server-only (AES-256-GCM + HMAC en `server/security/`). El schema y las primitivas **existen**, pero no están integrados: los módulos siguen en mock y la migración generada (`0001_*`) **no se aplica** en build ni al arrancar.
+La migración `0001_*` aplica el schema operativo de certificados/importación/auditoría (`certificates`, `import_batches`, `import_rows`, `audit_conflicts`). El backend procesa CSV, persiste previews, crea certificados y conflictos, y protege documentos con AES-256-GCM + HMAC server-only. Las migraciones nunca se ejecutan durante build ni al arrancar la aplicación.
 
 ## Requisitos
 
 - Node.js 22 (consulta `.nvmrc`)
 - npm 10.9.8, la misma versión usada para generar `package-lock.json`
 - Proyecto Neon con rama **`dev`**
+- Rama Neon **`test`** separada para integración
 - Variables locales en `.env` (nunca committed):
 
 ```env
 DATABASE_URL=           # connection string de la rama Neon "dev"
+DATABASE_URL_TEST=      # connection string de una rama Neon "test" separada
 NUXT_SESSION_PASSWORD=  # ≥ 32 caracteres
+DOCUMENT_ENCRYPTION_KEY=
+DOCUMENT_ENCRYPTION_KEY_VERSION=
+DOCUMENT_LOOKUP_HMAC_KEY=
 ```
 
 Copia [`.env.example`](.env.example) como plantilla. Cursor/agentes no deben inventar secretos reales.
@@ -62,16 +67,18 @@ Acceso: `/admin/login` — **ya no** existen credenciales demo (`admin` / `demo1
 |--------|--------|
 | Login / sesión admin | Real (Nuxt Auth Utils + Neon) |
 | Cursos (CRUD / publicar) | Real (Neon) |
-| Certificados / consulta pública | Mock |
-| Importaciones / auditoría | Mock |
-| Dashboard | Híbrido (cursos publicados reales; resto etiquetado Demo) |
+| Certificados persistidos por importación | Real (Neon, cifrados) |
+| Importaciones / preview / confirmación | Real (Nitro + Neon) |
+| Auditoría / decisiones | Real (Nitro + Neon) |
+| Consulta pública de certificados | Mock (fuera de alcance) |
+| Dashboard | Híbrido (operación admin real; consulta pública demo) |
 
 ## Arquitectura
 
 ```
 Páginas → Composables → Repositorios cliente
-                           ├─ auth/cursos → /api/* → services → Drizzle neon-http → Neon
-                           └─ certs/imports/audit → useMockStore (mock)
+                           ├─ auth/cursos/imports/audit → /api/* → services → Drizzle → Neon
+                           └─ consulta pública de certificados → useMockStore (mock)
 ```
 
 ## Scripts
@@ -83,7 +90,7 @@ Páginas → Composables → Repositorios cliente
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Tipos |
 | `npm run test:unit` | Pruebas unitarias (sin Neon) |
-| `npm run test:integration` | Manual; exige `DATABASE_URL_TEST` (sin fallback a `DATABASE_URL`) |
+| `npm run test:integration` | Flujo real importación/auditoría; exige rama `DATABASE_URL_TEST` separada |
 | `npm run db:generate` | Generar migración SQL |
 | `npm run db:migrate` | Migrar Neon `dev` (`MIGRATION_TARGET=dev` + confirmación `YES`) |
 | `npm run create-admin` | Crear administrador |
@@ -95,16 +102,29 @@ npm run lint
 npm run typecheck
 npm run test:unit
 npm run build
+git diff --check
+```
+
+### Integración segura
+
+La rama indicada por `DATABASE_URL_TEST` debe tener las migraciones ya aplicadas. El script no migra, no hace `drop`/`truncate` y rechaza el destino si coincide con `DATABASE_URL`. Crea un admin y curso únicos, ejecuta dos importaciones para comprobar certificado nuevo y conflicto, decide el conflicto y elimina únicamente esos datos mediante IDs rastreados.
+
+```bash
+# Interactivo: exige escribir YES
+npm run test:integration
+
+# Automatización explícitamente autorizada
+INTEGRATION_TEST_CONFIRM=YES npm run test:integration
 ```
 
 ## Estrategia de ramas
 
-- `main` — prototipo visual estable
-- `feat/phase-2-data-auth` — esta fase (sin merge/push automático)
+- Las ramas `dev` y `test` de Neon deben permanecer separadas.
+- Ningún script de pruebas de integración debe apuntar a Neon `dev`.
 
 ## Documentación adicional
 
-- [`docs/DATA-MODEL-FUTURE.md`](docs/DATA-MODEL-FUTURE.md) — tablas futuras (solo Markdown)
+- [`docs/DATA-MODEL-FUTURE.md`](docs/DATA-MODEL-FUTURE.md) — modelo aplicado de importación/auditoría y extensiones futuras
 - [`docs/SECURITY-FUTURE.md`](docs/SECURITY-FUTURE.md) — controles previos a producción
 
 ## Stack

@@ -115,7 +115,7 @@ async function togglePublish() {
           </h2>
           <SharedEmptyState
             title="Sin certificados reales aún"
-            description="Los certificados reales se conectarán en la fase de importación. La consulta pública y el wizard siguen usando datos de demostración."
+            description="La consulta pública de certificados permanece en modo demostración y se conectará en una fase futura."
           />
         </section>
       </div>

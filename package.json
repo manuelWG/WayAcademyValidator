@@ -16,7 +16,7 @@
     "typecheck": "nuxt typecheck",
     "test": "npm run test:unit",
     "test:unit": "vitest run",
-    "test:integration": "tsx scripts/test-integration.ts",
+    "test:integration": "tsx --tsconfig tsconfig.integration.json scripts/test-integration.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/db-migrate.ts",
     "create-admin": "tsx scripts/create-admin.ts"

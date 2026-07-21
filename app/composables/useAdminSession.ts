@@ -20,7 +20,9 @@ export function useAdminSession() {
   }))
 
   const store = useMockStore()
-  const demoDashboardStats = computed(() => computeDashboardStats(store.value))
+  const { imports } = useImports()
+  const { conflicts } = useAudit()
+  const dashboardStats = computed(() => computeDashboardStats(store.value, imports.value, conflicts.value))
 
   async function login(username: string, password: string) {
     const result = await adminAuthRepository.login(username, password)
@@ -57,7 +59,7 @@ export function useAdminSession() {
     login,
     logout,
     refreshSession,
-    /** Demo metrics still sourced from mock store (certificates/imports/audit). */
-    demoDashboardStats
+    /** Certificate totals remain demo; import and audit metrics come from their real API state. */
+    dashboardStats
   }
 }
